@@ -38,9 +38,6 @@ export default function Page() {
   const [tokenAValue, setTokenAValue] = useState('')
   const [tokenBValue, setTokenBValue] = useState('')
 
-  const [isCurrencyModalOpen, setIsCurrencyModalOpen] = useState(false)
-  const [currencyModalOpenFor, setCurrencyModalOpenFor] = useState('a')
-
   const { address, isConnected } = useAccount()
 
   // const {
@@ -102,29 +99,16 @@ export default function Page() {
     setTokenBValue(tokenBValue)
   }
 
-  const handleTokenSelect = (token: Currency) => {
-    if (currencyModalOpenFor === 'a') {
+  const handleTokenSelect = (token: Currency, aOrB: string) => {
+    if (aOrB === 'a') {
       setTokenA(token)
     } else {
       setTokenB(token)
     }
-
-    setIsCurrencyModalOpen(false)
-  }
-
-  const handleCurrencySelectOpen = (currency: 'a' | 'b') => {
-    setCurrencyModalOpenFor(currency)
-    setIsCurrencyModalOpen(true)
   }
 
   return (
     <>
-      <CurrencySearchModal
-        isOpen={isCurrencyModalOpen}
-        onModalClose={() => setIsCurrencyModalOpen(false)}
-        onTokenSelect={handleTokenSelect}
-      />
-
       <Center width='100vw' height='100vh'>
         {isConnected ? (
           <Box width='100%' maxW='xl' borderRadius='md'>
@@ -145,12 +129,12 @@ export default function Page() {
                 </Text>
                 <Flex gap='2'>
                   <CurrencySelector
-                    onClick={() => handleCurrencySelectOpen('a')}
-                    token={tokenA}
+                    value={tokenA}
+                    onTokenSelect={token => handleTokenSelect(token, 'a')}
                   />
                   <CurrencySelector
-                    onClick={() => handleCurrencySelectOpen('b')}
-                    token={tokenB}
+                    value={tokenB}
+                    onTokenSelect={token => handleTokenSelect(token, 'b')}
                   />
                 </Flex>
 
