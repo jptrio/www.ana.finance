@@ -73,26 +73,26 @@ export default function Page() {
   //   },
   // })
 
-  // const {
-  //   config,
-  //   error: prepareError,
-  //   isError: isPrepareError,
-  // } = usePrepareContractWrite({
-  //   chainId: 5,
-  //   address: KNOTES_CONTRACT,
-  //   abi: knotes.abi,
-  //   functionName: 'setKNOTE',
-  //   args: [TOKEN_A_CONTRACT, '100000000000', TOKEN_B_CONTRACT, '100000000000'],
-  //   overrides: {
-  //     from: address,
-  //   },
-  // })
+  const {
+    config,
+    error: prepareError,
+    isError: isPrepareError,
+  } = usePrepareContractWrite({
+    chainId: 5,
+    address: KNOTES_CONTRACT,
+    abi: knotes.abi,
+    functionName: 'setKNOTE',
+    args: [TOKEN_A_CONTRACT, '100000000000', TOKEN_B_CONTRACT, '100000000000'],
+    overrides: {
+      from: address,
+    },
+  })
 
-  // const { data, error, isError, write } = useContractWrite(config)
+  const { data, error, isError, write } = useContractWrite(config)
 
-  // const { isLoading, isSuccess } = useWaitForTransaction({
-  //   hash: data?.hash,
-  // })
+  const { isLoading, isSuccess } = useWaitForTransaction({
+    hash: data?.hash,
+  })
 
   const handleCurrencyAInput = (tokenAValue: string) => {
     setTokenAValue(tokenAValue)
@@ -119,12 +119,43 @@ export default function Page() {
 
   return (
     <>
+      <Flex
+        pos='fixed'
+        height='auto'
+        left='0'
+        right='0'
+        bottom='0'
+        className='parallax'
+      >
+        <Image
+          src='parallax_3.png'
+          alt=''
+          width='100%'
+          height='auto'
+          zIndex='2'
+        />
+        <Image
+          src='parallax_2.png'
+          alt=''
+          width='100%'
+          height='auto'
+          pos='fixed'
+          zIndex='1'
+        />
+        <Image
+          src='parallax_1.png'
+          alt=''
+          width='100%'
+          height='auto'
+          pos='fixed'
+          zIndex='0'
+        />
+      </Flex>
       <CurrencySearchModal
         isOpen={isCurrencyModalOpen}
         onModalClose={() => setIsCurrencyModalOpen(false)}
         onTokenSelect={handleTokenSelect}
       />
-
       <Center width='100vw' height='100vh'>
         {isConnected ? (
           <Box width='100%' maxW='xl' borderRadius='md'>
@@ -134,11 +165,6 @@ export default function Page() {
               variant='elevated'
               bgColor='yellow.50'
             >
-              <CardHeader>
-                <Heading size='md' textAlign='center' fontWeight='semibold'>
-                  Add Liquidity
-                </Heading>
-              </CardHeader>
               <CardBody>
                 <Text paddingBottom='2' fontWeight='light'>
                   Select Pair
@@ -200,7 +226,6 @@ export default function Page() {
                   </Flex>
                 </Box>
               </CardBody>
-
               <CardFooter>
                 <Button
                   size='lg'
