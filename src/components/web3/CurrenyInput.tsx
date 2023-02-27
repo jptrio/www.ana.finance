@@ -19,7 +19,14 @@ export function CurrencyInput({
       <Input
         size='lg'
         type='text'
+        minLength={1}
+        maxLength={79}
         value={value}
+        autoCorrect='off'
+        spellCheck='false'
+        autoComplete='off'
+        inputMode='decimal'
+        pattern='^[0-9]*[.,]?[0-9]*$'
         placeholder='Deposit Amount'
         onChange={e => onUserInput(e.target.value)}
       ></Input>
