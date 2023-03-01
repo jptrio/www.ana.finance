@@ -8,7 +8,6 @@ import {
   TOKEN_A_CONTRACT,
   TOKEN_B_CONTRACT,
 } from '@/config/constants'
-import { useApproval } from '@/hooks/useApproval'
 import { Currency } from '@/models/currency'
 import { Card, CardBody, CardFooter, CardHeader } from '@chakra-ui/card'
 import {
@@ -33,9 +32,11 @@ import {
 
 export default function Page() {
   // TODO: available pairs to be resolved from the contract instead
-  const [selectedCurrency, setCurrency] = useState(AVAILABLE_TOKENS[0])
+  const [tokenA, setTokenA] = useState(AVAILABLE_TOKENS[0])
+  const [tokenB, setTokenB] = useState(AVAILABLE_TOKENS[1])
 
-  const [assetValue, setAssetValue] = useState('')
+  const [tokenAValue, setTokenAValue] = useState('')
+  const [tokenBValue, setTokenBValue] = useState('')
 
   const { address, isConnected } = useAccount()
 
@@ -90,22 +91,23 @@ export default function Page() {
   //   hash: data?.hash,
   // })
 
-  const [approvalState, approveCallback] = useApproval(
-    selectedCurrency,
-    assetValue,
-    address
-  )
-
-  const handleAssetAmountInput = (tokenAValue: string) => {
-    setAssetValue(tokenAValue)
+  const handleCurrencyAInput = (tokenAValue: string) => {
+    setTokenAValue(tokenAValue)
   }
 
-  const handleCurrencySelect = (asset: Currency) => {
-    setCurrency(asset)
+  const handleCurrencyBInput = (tokenBValue: string) => {
+    setTokenBValue(tokenBValue)
+  }
+
+  const handleTokenSelect = (token: Currency, aOrB: string) => {
+    if (aOrB === 'a') {
+      setTokenA(token)
+    } else {
+      setTokenB(token)
+    }
   }
 
   return (
-    
     <Center width='100vw' height='100vh'>
       {isConnected ? (
         <Box width='100%' maxW='xl' borderRadius='md'>
@@ -122,21 +124,32 @@ export default function Page() {
             </CardHeader>
             <CardBody>
               <Text paddingBottom='2' fontWeight='light'>
-                Select Asset
+                Select Pair
               </Text>
-              <CurrencySelector
-                value={selectedCurrency}
-                onTokenSelect={asset => handleCurrencySelect(asset)}
-              />
+              <Flex gap='2'>
+                <CurrencySelector
+                  value={tokenA}
+                  onTokenSelect={token => handleTokenSelect(token, 'a')}
+                />
+                <CurrencySelector
+                  value={tokenB}
+                  onTokenSelect={token => handleTokenSelect(token, 'b')}
+                />
+              </Flex>
 
               <Text paddingTop='12' paddingBottom='2' fontWeight='light'>
-                Deposit Amount
+                Deposit Amounts
               </Text>
               <Flex gap='2'>
                 <CurrencyInput
-                  value={assetValue}
-                  onUserInput={handleAssetAmountInput}
-                  currency={selectedCurrency}
+                  value={tokenAValue}
+                  onUserInput={handleCurrencyAInput}
+                  currency={tokenA}
+                />
+                <CurrencyInput
+                  value={tokenBValue}
+                  onUserInput={handleCurrencyBInput}
+                  currency={tokenB}
                 />
               </Flex>
 
@@ -154,7 +167,7 @@ export default function Page() {
                   <Flex direction='column' textAlign='center'>
                     <Text>0.000</Text>
                     <Text fontSize='sm'>
-                      {selectedCurrency.symbol} per {}
+                      {tokenA.symbol} per {tokenB.symbol}
                     </Text>
                   </Flex>
                   <Flex direction='column' textAlign='center'>
@@ -164,7 +177,7 @@ export default function Page() {
                   <Flex direction='column' textAlign='center'>
                     <Text>0.000</Text>
                     <Text fontSize='sm'>
-                      {} per {selectedCurrency.symbol}
+                      {tokenB.symbol} per {tokenA.symbol}
                     </Text>
                   </Flex>
                 </Flex>
