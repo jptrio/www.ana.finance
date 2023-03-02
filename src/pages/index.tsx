@@ -124,6 +124,40 @@ export default function Page() {
         height='auto'
         left='0'
         right='0'
+        top='0'
+        bottom='0'
+        className='parallax'
+      >
+        <Image
+          src='parallax_bg.png'
+          alt=''
+          width='100%'
+          height='100%'
+          zIndex='0'
+          opacity='.35'
+        />
+      </Flex>
+      <Flex
+        pos='fixed'
+        height='auto'
+        left='0'
+        right='0'
+        top='0'
+        className='parallax'
+      >
+        <Image
+          src='parallax_4.png'
+          alt=''
+          width='100%'
+          height='auto'
+          zIndex='3'
+        />
+      </Flex>
+      <Flex
+        pos='fixed'
+        height='auto'
+        left='0'
+        right='0'
         bottom='0'
         className='parallax'
       >
