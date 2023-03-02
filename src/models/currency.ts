@@ -26,13 +26,3 @@ export type Currency = {
    */
   logoURI?: string
 }
-
-// {
-//   chainId: mainnet.id,
-//     address: '',
-//   name: 'Wrapped Ether',
-//   symbol: 'WETH',
-//   decimals: 18,
-//   logoURI:
-//   'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
-// },

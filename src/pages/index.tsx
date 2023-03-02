@@ -8,6 +8,7 @@ import {
   TOKEN_A_CONTRACT,
   TOKEN_B_CONTRACT,
 } from '@/config/constants'
+import { useApproval } from '@/hooks/useApproval'
 import { Currency } from '@/models/currency'
 import { Card, CardBody, CardFooter, CardHeader } from '@chakra-ui/card'
 import {
@@ -32,14 +33,9 @@ import {
 
 export default function Page() {
   // TODO: available pairs to be resolved from the contract instead
-  const [tokenA, setTokenA] = useState(AVAILABLE_TOKENS[0])
-  const [tokenB, setTokenB] = useState(AVAILABLE_TOKENS[1])
+  const [selectedCurrency, setCurrency] = useState(AVAILABLE_TOKENS[0])
 
-  const [tokenAValue, setTokenAValue] = useState('')
-  const [tokenBValue, setTokenBValue] = useState('')
-
-  const [isCurrencyModalOpen, setIsCurrencyModalOpen] = useState(false)
-  const [currencyModalOpenFor, setCurrencyModalOpenFor] = useState('a')
+  const [assetValue, setAssetValue] = useState('')
 
   const { address, isConnected } = useAccount()
 
@@ -94,31 +90,117 @@ export default function Page() {
     hash: data?.hash,
   })
 
-  const handleCurrencyAInput = (tokenAValue: string) => {
-    setTokenAValue(tokenAValue)
+  const [approvalState, approveCallback] = useApproval(
+    selectedCurrency,
+    assetValue,
+    address
+  )
+
+  const handleAssetAmountInput = (tokenAValue: string) => {
+    setAssetValue(tokenAValue)
   }
 
-  const handleCurrencyBInput = (tokenBValue: string) => {
-    setTokenBValue(tokenBValue)
-  }
-
-  const handleTokenSelect = (token: Currency) => {
-    if (currencyModalOpenFor === 'a') {
-      setTokenA(token)
-    } else {
-      setTokenB(token)
-    }
-
-    setIsCurrencyModalOpen(false)
-  }
-
-  const handleCurrencySelectOpen = (currency: 'a' | 'b') => {
-    setCurrencyModalOpenFor(currency)
-    setIsCurrencyModalOpen(true)
+  const handleCurrencySelect = (asset: Currency) => {
+    setCurrency(asset)
   }
 
   return (
     <>
+      
+
+      <Center width='100vw' height='100vh'>
+        {isConnected ? (
+          <Box width='100%' maxW='xl' borderRadius='md'>
+            <Card
+              shadow='md'
+              borderRadius='xl'
+              variant='elevated'
+              bgColor='yellow.50'
+            >
+              <CardHeader>
+                <Heading size='md' textAlign='center' fontWeight='semibold'>
+                  Add Liquidity
+                </Heading>
+              </CardHeader>
+              <CardBody>
+                <Text paddingBottom='2' fontWeight='light'>
+                  Select Asset
+                </Text>
+                <CurrencySelector
+                  value={selectedCurrency}
+                  onTokenSelect={asset => handleCurrencySelect(asset)}
+                />
+
+                <Text paddingTop='12' paddingBottom='2' fontWeight='light'>
+                  Deposit Amount
+                </Text>
+                <Flex gap='2'>
+                  <CurrencyInput
+                    value={assetValue}
+                    onUserInput={handleAssetAmountInput}
+                    currency={selectedCurrency}
+                  />
+                </Flex>
+
+                <Text paddingTop='12' paddingBottom='2' fontWeight='light'>
+                  Prices and pool share
+                </Text>
+                <Box
+                  border='solid'
+                  borderWidth='thin'
+                  borderRadius='lg'
+                  padding='4'
+                  borderColor='gray.200'
+                >
+                  <Flex justifyContent='space-between'>
+                    <Flex direction='column' textAlign='center'>
+                      <Text>0.000</Text>
+                      <Text fontSize='sm'>
+                        {selectedCurrency.symbol} per {}
+                      </Text>
+                    </Flex>
+                    <Flex direction='column' textAlign='center'>
+                      <Text>0.0%</Text>
+                      <Text fontSize='sm'>Fee Tier</Text>
+                    </Flex>
+                    <Flex direction='column' textAlign='center'>
+                      <Text>0.000</Text>
+                      <Text fontSize='sm'>
+                        {} per {selectedCurrency.symbol}
+                      </Text>
+                    </Flex>
+                  </Flex>
+                </Box>
+              </CardBody>
+
+              <CardFooter>
+                <Button
+                  size='lg'
+                  shadow='md'
+                  isDisabled
+                  width='100%'
+                  borderRadius='lg'
+                  colorScheme='orange'
+                >
+                  Enter an amount
+                </Button>
+              </CardFooter>
+            </Card>
+          </Box>
+        ) : (
+          <>
+            <Image
+                src='heart.png'
+                alt=''
+                width='50%'
+                height='auto'
+                zIndex='10'
+                display='block'
+              />
+              {/* <Text display='block'>Connect your wallet!</Text> */}
+          </>
+        )}
+      </Center>
       <Flex
         pos='fixed'
         height='auto'
@@ -185,103 +267,6 @@ export default function Page() {
           zIndex='0'
         />
       </Flex>
-      <CurrencySearchModal
-        isOpen={isCurrencyModalOpen}
-        onModalClose={() => setIsCurrencyModalOpen(false)}
-        onTokenSelect={handleTokenSelect}
-      />
-      <Center width='100vw' height='100vh'>
-        {isConnected ? (
-          <Box width='100%' maxW='xl' borderRadius='md'>
-            <Card
-              shadow='md'
-              borderRadius='xl'
-              variant='elevated'
-              bgColor='yellow.50'
-            >
-              <CardBody>
-                <Text paddingBottom='2' fontWeight='light'>
-                  Select Pair
-                </Text>
-                <Flex gap='2'>
-                  <CurrencySelector
-                    onClick={() => handleCurrencySelectOpen('a')}
-                    token={tokenA}
-                  />
-                  <CurrencySelector
-                    onClick={() => handleCurrencySelectOpen('b')}
-                    token={tokenB}
-                  />
-                </Flex>
-
-                <Text paddingTop='12' paddingBottom='2' fontWeight='light'>
-                  Deposit Amounts
-                </Text>
-                <Flex gap='2'>
-                  <CurrencyInput
-                    value={tokenAValue}
-                    onUserInput={handleCurrencyAInput}
-                    currency={tokenA}
-                  />
-                  <CurrencyInput
-                    value={tokenBValue}
-                    onUserInput={handleCurrencyBInput}
-                    currency={tokenB}
-                  />
-                </Flex>
-
-                <Text paddingTop='12' paddingBottom='2' fontWeight='light'>
-                  Prices and pool share
-                </Text>
-                <Box
-                  border='solid'
-                  borderWidth='thin'
-                  borderRadius='lg'
-                  padding='4'
-                  borderColor='gray.200'
-                >
-                  <Flex justifyContent='space-between'>
-                    <Flex direction='column' textAlign='center'>
-                      <Text>0.000</Text>
-                      <Text fontSize='sm'>
-                        {tokenA.symbol} per {tokenB.symbol}
-                      </Text>
-                    </Flex>
-                    <Flex direction='column' textAlign='center'>
-                      <Text>0.0%</Text>
-                      <Text fontSize='sm'>Fee Tier</Text>
-                    </Flex>
-                    <Flex direction='column' textAlign='center'>
-                      <Text>0.000</Text>
-                      <Text fontSize='sm'>
-                        {tokenB.symbol} per {tokenA.symbol}
-                      </Text>
-                    </Flex>
-                  </Flex>
-                </Box>
-              </CardBody>
-              <CardFooter>
-                <Button
-                  size='lg'
-                  shadow='md'
-                  isDisabled
-                  width='100%'
-                  borderRadius='lg'
-                  colorScheme='orange'
-                >
-                  Enter an amount
-                </Button>
-              </CardFooter>
-            </Card>
-          </Box>
-        ) : (
-          <>
-            <Text fontSize='lg' fontWeight='bold'>
-              Connect your wallet!
-            </Text>
-          </>
-        )}
-      </Center>
     </>
   )
 }
