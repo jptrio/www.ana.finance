@@ -2,6 +2,7 @@ import ERC20ABI from '@/../contracts/ERC20.json'
 import KNOTEABI from '@/../contracts/KNOTES.json'
 import { CurrencySelector } from '@/components/web3/CurrencySelector'
 import { CurrencyInput } from '@/components/web3/CurrenyInput'
+import DeveloperPanel from '@/components/web3/DeveloperPanel'
 import { AVAILABLE_TOKENS, KNOTES_CONTRACT } from '@/config/constants'
 import { useTokenAllowance } from '@/hooks/useTokenAllowance'
 import { Currency } from '@/models/currency'
@@ -20,7 +21,11 @@ import {
 } from 'wagmi'
 
 export default function Page() {
+  const devModeEnabled = process.env.NEXT_PUBLIC_DEV_MODE
+
   const { address, isConnected } = useAccount()
+
+  const [isDevPanelOpen, setIsDevPanelOpen] = useState(false)
 
   const [assetValue, setAssetValue] = useState('')
   const [selectedCurrency, setCurrency] = useState(AVAILABLE_TOKENS[0])
@@ -125,8 +130,23 @@ export default function Page() {
 
   return (
     <Center width='100vw' height='100vh'>
+      <DeveloperPanel
+        isOpen={isDevPanelOpen}
+        onClose={() => setIsDevPanelOpen(false)}
+      />
       {isConnected ? (
-        <Box width='100%' maxW='xl' borderRadius='md'>
+        <Box position='relative' width='100%' maxW='xl' borderRadius='md'>
+          {devModeEnabled && (
+            <Button
+              position='absolute'
+              top='0'
+              right='0'
+              zIndex='50'
+              onClick={() => setIsDevPanelOpen(true)}
+            >
+              Dev Panel
+            </Button>
+          )}
           <Card
             shadow='md'
             borderRadius='xl'
