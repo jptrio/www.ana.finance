@@ -106,11 +106,9 @@ export default function Page() {
 
   return (
     <>
-      
-
       <Center width='100vw' height='100vh'>
         {isConnected ? (
-          <Box width='100%' maxW='xl' borderRadius='md'>
+          <Box width='100%' maxW='xl' borderRadius='md' zIndex='10'>
             <Card
               shadow='md'
               borderRadius='xl'
@@ -190,14 +188,30 @@ export default function Page() {
         ) : (
           <>
             <Image
-                src='heart.png'
+              src='heart.png'
+              alt=''
+              width='50%'
+              height='auto'
+              zIndex='5'
+              display='block'
+            />
+            {/* <Text display='block'>Connect your wallet!</Text> */}
+            <Box
+              height='auto'
+              width='auto'
+              position='fixed'
+              top='50px'
+              right='-15px'
+              zIndex='9'
+            >
+              <Image
+                src='phuqingGuy.png'
                 alt=''
-                width='50%'
+                width='300px'
                 height='auto'
-                zIndex='10'
-                display='block'
+                transform='scaleX(-1)'
               />
-              {/* <Text display='block'>Connect your wallet!</Text> */}
+            </Box>
           </>
         )}
       </Center>
@@ -213,10 +227,14 @@ export default function Page() {
         <Image
           src='parallax_bg.png'
           alt=''
-          width='100%'
-          height='100%'
-          zIndex='0'
           opacity='.35'
+          pos='fixed'
+          left='0'
+          right='0'
+          top='0'
+          bottom='0'
+          minHeight='100%'
+          minWidth='100%'
         />
       </Flex>
       <Flex
@@ -265,6 +283,22 @@ export default function Page() {
           height='auto'
           pos='fixed'
           zIndex='0'
+        />
+      </Flex>
+      <Flex
+        pos='fixed'
+        height='auto'
+        left='0'
+        right='0'
+        bottom='-50px'
+        className='parallax'
+      >
+        <Image
+          src='parallax_5.png'
+          alt=''
+          width='100%'
+          height='100%'
+          zIndex='5'
         />
       </Flex>
     </>

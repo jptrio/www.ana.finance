@@ -8,7 +8,7 @@ import { ReactNode } from 'react'
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <RootProvider>
-      <Box bgGradient='radial( green.1000, green.1900)'>
+      <Box bgGradient='radial( yellow.500, green.1900)'>
         <Box pos='relative' minHeight='100vh'>
           <main>{children}</main>
         </Box>
