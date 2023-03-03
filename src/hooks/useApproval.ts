@@ -1,41 +1,47 @@
 import ERC20ABI from '@/../contracts/ERC20.json'
 import { useTokenAllowance } from '@/hooks/useTokenAllowance'
 import { Currency } from '@/models/currency'
+import { MaxUint256 } from '@ethersproject/constants'
 import { BigNumber, ethers } from 'ethers'
 import { useCallback, useEffect, useMemo } from 'react'
-import { useAccount, useChainId, useContract, useContractRead } from 'wagmi'
+import {
+  Address,
+  useAccount,
+  useChainId,
+  useContract,
+  useContractRead,
+  useContractWrite,
+  usePrepareContractWrite,
+  useWaitForTransaction,
+} from 'wagmi'
 
 export function useApproval(
   currencyToApprove: Currency,
-  amountToApprove: BigNumber,
+  amountToApprove: string,
   spender: string | undefined
 ) {
-  const approvalState = useApprovalStateForSpender(
-    currencyToApprove,
-    amountToApprove,
-    spender
-  )
-
-  const { data } = useContractRead({
+  const { config: approveConfig } = usePrepareContractWrite({
+    chainId: useChainId(),
     abi: ERC20ABI,
     address: `0x${currencyToApprove.address}`,
     functionName: 'approve',
-    args: [spender, amountToApprove],
+    args: [currencyToApprove.address, MaxUint256],
+    overrides: {
+      from: spender as Address,
+    },
   })
 
-  useEffect(() => {
-    if (true) {
-    }
-  }, [true])
+  const { data: approveData, write: approveAsset } =
+    useContractWrite(approveConfig)
 
-  const approvalCallback = useCallback(async () => {}, [
-    approvalState,
-    currencyToApprove,
-    amountToApprove,
-    spender,
-  ])
+  const { isLoading: isApprovalLoading } = useWaitForTransaction({
+    hash: approveData?.hash,
+  })
 
-  return [approvalState, approvalCallback]
+  return {
+    approveAsset,
+    isApprovalLoading,
+  }
 }
 
 export function useApprovalStateForSpender(

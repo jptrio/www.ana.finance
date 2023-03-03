@@ -4,6 +4,7 @@ import { CurrencySelector } from '@/components/web3/CurrencySelector'
 import { CurrencyInput } from '@/components/web3/CurrenyInput'
 import DeveloperPanel from '@/components/web3/DeveloperPanel'
 import { AVAILABLE_TOKENS, KNOTES_CONTRACT } from '@/config/constants'
+import { useApproval } from '@/hooks/useApproval'
 import { useSetKnote } from '@/hooks/useSetKnote'
 import { useTokenAllowance } from '@/hooks/useTokenAllowance'
 import { Currency } from '@/models/currency'
@@ -56,23 +57,11 @@ export default function Page() {
     selectedCurrency.address
   )
 
-  const { config: approveConfig } = usePrepareContractWrite({
-    chainId: useChainId(),
-    abi: ERC20ABI,
-    address: `0x${selectedCurrency.address}`,
-    functionName: 'approve',
-    args: [selectedCurrency.address, MaxUint256],
-    overrides: {
-      from: address,
-    },
-  })
-
-  const { data: approveData, write: approveAsset } =
-    useContractWrite(approveConfig)
-
-  const { isLoading: isApprovalLoading } = useWaitForTransaction({
-    hash: approveData?.hash,
-  })
+  const { approveAsset, isApprovalLoading } = useApproval(
+    selectedCurrency,
+    assetValue,
+    address
+  )
 
   const handleAssetApproval = async () => {
     if (approveAsset) {
