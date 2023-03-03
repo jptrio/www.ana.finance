@@ -1,5 +1,14 @@
 import { Currency } from '@/models/currency'
-import { Image, Input, InputGroup, InputRightElement } from '@chakra-ui/react'
+import {
+  Badge,
+  Flex,
+  Image,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Text,
+} from '@chakra-ui/react'
+import { ChangeEvent } from 'react'
 
 interface CurrencyInputProps {
   value: string
@@ -7,6 +16,7 @@ interface CurrencyInputProps {
   onMaxHit?: () => void
   currency: Currency
   isDisabled?: boolean
+  balance?: string
 }
 
 export function CurrencyInput({
@@ -15,13 +25,22 @@ export function CurrencyInput({
   onMaxHit,
   currency,
   isDisabled,
+  balance,
 }: CurrencyInputProps) {
+  const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
+    if (balance && e.target.value > balance) {
+      onMaxHit && onMaxHit()
+    }
+
+    onUserInput(e.target.value)
+  }
+
   return (
     <InputGroup>
       <Input
-        isDisabled={isDisabled}
         size='lg'
-        type='text'
+        height='4.5rem'
+        type='number'
         minLength={1}
         maxLength={79}
         value={value}
@@ -29,13 +48,21 @@ export function CurrencyInput({
         spellCheck='false'
         autoComplete='off'
         inputMode='decimal'
+        colorScheme='green'
+        isDisabled={isDisabled}
         pattern='^[0-9]*[.,]?[0-9]*$'
         placeholder='Deposit Amount'
-        onChange={e => onUserInput(e.target.value)}
+        onChange={handleInput}
       ></Input>
-      <InputRightElement marginTop='1'>
+      <InputRightElement
+        paddingRight='1'
+        flexDirection='column'
+        height='100%'
+        justifyContent='space-evenly'
+      >
         <Image
-          boxSize='30'
+          alignSelf='center'
+          boxSize='29'
           border='solid'
           borderWidth='thin'
           borderRadius='full'
@@ -43,6 +70,16 @@ export function CurrencyInput({
           borderColor='gray.300'
           src={currency.logoURI}
         />
+        <Badge
+          fontWeight='semibold'
+          colorScheme='gray'
+          fontSize='xs'
+          color='gray.500'
+          alignSelf='end'
+          isTruncated
+        >
+          Balance: {balance}
+        </Badge>
       </InputRightElement>
     </InputGroup>
   )

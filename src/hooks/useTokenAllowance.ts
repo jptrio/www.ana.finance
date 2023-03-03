@@ -9,10 +9,11 @@ export function useTokenAllowance(
   spender?: string
 ): {
   tokenAllowance: any | undefined
+  error: any | undefined
 } {
   const inputs = useMemo(() => [owner, spender], [owner, spender])
 
-  const { data, error, isLoading } = useContractRead({
+  const { data, error } = useContractRead({
     chainId: useChainId(),
     address: `0x${currency.address}`,
     abi: ERC20ABI,
@@ -25,5 +26,8 @@ export function useTokenAllowance(
 
   const allowance = useMemo(() => rawAmount || undefined, [currency, rawAmount])
 
-  return useMemo(() => ({ tokenAllowance: allowance }), [allowance])
+  return useMemo(
+    () => ({ tokenAllowance: allowance, error: error || undefined }),
+    [allowance, error]
+  )
 }

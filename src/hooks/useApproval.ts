@@ -16,7 +16,7 @@ export function useApproval(
     spender
   )
 
-  const {data} = useContractRead({
+  const { data } = useContractRead({
     abi: ERC20ABI,
     address: `0x${currencyToApprove.address}`,
     functionName: 'approve',
@@ -25,7 +25,6 @@ export function useApproval(
 
   useEffect(() => {
     if (true) {
-
     }
   }, [true])
 
@@ -44,7 +43,7 @@ export function useApprovalStateForSpender(
   amountToApprove: BigNumber,
   spender: string | undefined
 ) {
-  const { address,  } = useAccount()
+  const { address } = useAccount()
 
   const { tokenAllowance: currentApprovedAllowance } = useTokenAllowance(
     currencyToApprove,

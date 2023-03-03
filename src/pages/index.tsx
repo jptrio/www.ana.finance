@@ -8,10 +8,11 @@ import { Currency } from '@/models/currency'
 import { Card, CardBody, CardFooter, CardHeader } from '@chakra-ui/card'
 import { Box, Button, Center, Flex, Heading, Text } from '@chakra-ui/react'
 import { MaxUint256 } from '@ethersproject/constants'
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import { useEffect, useState } from 'react'
 import {
   useAccount,
+  useBalance,
   useChainId,
   useContractWrite,
   usePrepareContractWrite,
@@ -24,15 +25,30 @@ export default function Page() {
   const [assetValue, setAssetValue] = useState('')
   const [selectedCurrency, setCurrency] = useState(AVAILABLE_TOKENS[0])
 
+  const [formattedAssetValue, setFormattedAssetValue] = useState<BigNumber>()
+
+  const { data: balanceData } = useBalance({
+    chainId: useChainId(),
+    address: address,
+    token: `0x${selectedCurrency.address}`,
+    watch: true,
+  })
+
+  useEffect(() => {
+    if (assetValue) {
+      const formattedValue = ethers.utils.parseUnits(
+        assetValue,
+        selectedCurrency.decimals
+      )
+      setFormattedAssetValue(formattedValue)
+    }
+  }, [assetValue])
+
   const allowance = useTokenAllowance(
     selectedCurrency,
     address,
     selectedCurrency.address
   )
-
-  useEffect(() => {
-    console.log('Allowance Changed', allowance)
-  }, [allowance])
 
   const { config: approveConfig } = usePrepareContractWrite({
     chainId: useChainId(),
@@ -72,7 +88,7 @@ export default function Page() {
     useContractWrite(addLiquidityConfig)
 
   const { isLoading: isSetKnoteLoading } = useWaitForTransaction({
-    hash: approveData?.hash,
+    hash: setKnoteData?.hash,
   })
 
   const handleAssetApproval = async () => {
@@ -102,6 +118,10 @@ export default function Page() {
   const handleCurrencySelect = (asset: Currency) => {
     setCurrency(asset)
   }
+
+  useEffect(() => {
+    console.log('BalanceData', balanceData)
+  }, [balanceData])
 
   return (
     <Center width='100vw' height='100vh'>
@@ -136,6 +156,7 @@ export default function Page() {
                   value={assetValue}
                   onUserInput={handleAssetAmountInput}
                   currency={selectedCurrency}
+                  balance={balanceData?.formatted}
                 />
               </Flex>
 
@@ -199,7 +220,7 @@ export default function Page() {
                     ? 'Sending Transaction'
                     : assetValue == ''
                     ? 'Enter an amount'
-                    : `Bond ${selectedCurrency.symbol}`}
+                    : 'Set KNOTE'}
                 </Button>
               )}
             </CardFooter>
