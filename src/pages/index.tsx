@@ -4,6 +4,7 @@ import { CurrencySelector } from '@/components/web3/CurrencySelector'
 import { CurrencyInput } from '@/components/web3/CurrenyInput'
 import DeveloperPanel from '@/components/web3/DeveloperPanel'
 import { AVAILABLE_TOKENS, KNOTES_CONTRACT } from '@/config/constants'
+import { useSetKnote } from '@/hooks/useSetKnote'
 import { useTokenAllowance } from '@/hooks/useTokenAllowance'
 import { Currency } from '@/models/currency'
 import { Card, CardBody, CardFooter, CardHeader } from '@chakra-ui/card'
@@ -73,29 +74,6 @@ export default function Page() {
     hash: approveData?.hash,
   })
 
-  const { config: addLiquidityConfig } = usePrepareContractWrite({
-    chainId: useChainId(),
-    address: KNOTES_CONTRACT,
-    abi: KNOTEABI.abi,
-    functionName: 'setKNOTE',
-    args: [
-      selectedCurrency.address,
-      assetValue,
-      selectedCurrency.address,
-      assetValue,
-    ],
-    overrides: {
-      from: address,
-    },
-  })
-
-  const { data: setKnoteData, write: setKnote } =
-    useContractWrite(addLiquidityConfig)
-
-  const { isLoading: isSetKnoteLoading } = useWaitForTransaction({
-    hash: setKnoteData?.hash,
-  })
-
   const handleAssetApproval = async () => {
     if (approveAsset) {
       try {
@@ -105,6 +83,14 @@ export default function Page() {
       }
     }
   }
+
+  const { setKnote, isSetKnoteLoading } = useSetKnote(
+    selectedCurrency,
+    assetValue,
+    selectedCurrency,
+    assetValue,
+    address
+  )
 
   const handleSetKnote = async () => {
     if (setKnote) {
