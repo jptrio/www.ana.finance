@@ -124,10 +124,6 @@ export default function Page() {
     setCurrency(asset)
   }
 
-  useEffect(() => {
-    console.log('BalanceData', balanceData)
-  }, [balanceData])
-
   return (
     <Center width='100vw' height='100vh'>
       <DeveloperPanel
