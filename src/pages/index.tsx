@@ -1,55 +1,33 @@
-import ERC20ABI from '@/../contracts/ERC20.json'
-import KNOTEABI from '@/../contracts/KNOTES.json'
 import { CurrencySelector } from '@/components/web3/CurrencySelector'
 import { CurrencyInput } from '@/components/web3/CurrenyInput'
 import DeveloperPanel from '@/components/web3/DeveloperPanel'
-import { AVAILABLE_TOKENS, KNOTES_CONTRACT } from '@/config/constants'
+import { AVAILABLE_TOKENS } from '@/config/constants'
 import { useApproval } from '@/hooks/useApproval'
 import { useSetKnote } from '@/hooks/useSetKnote'
 import { useTokenAllowance } from '@/hooks/useTokenAllowance'
 import { Currency } from '@/models/currency'
 import { Card, CardBody, CardFooter, CardHeader } from '@chakra-ui/card'
 import { Box, Button, Center, Flex, Heading, Text } from '@chakra-ui/react'
-import { MaxUint256 } from '@ethersproject/constants'
 import { BigNumber, ethers } from 'ethers'
 import { useEffect, useState } from 'react'
-import {
-  useAccount,
-  useBalance,
-  useChainId,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
-} from 'wagmi'
+import { Address, useAccount, useBalance, useChainId } from 'wagmi'
 
 export default function Page() {
   const devModeEnabled = process.env.NEXT_PUBLIC_DEV_MODE
+  const [isDevPanelOpen, setIsDevPanelOpen] = useState(false)
 
   const { address, isConnected } = useAccount()
 
-  const [isDevPanelOpen, setIsDevPanelOpen] = useState(false)
-
   const [assetValue, setAssetValue] = useState('')
   const [selectedCurrency, setCurrency] = useState(AVAILABLE_TOKENS[0])
-
   const [formattedAssetValue, setFormattedAssetValue] = useState<BigNumber>()
 
   const { data: balanceData } = useBalance({
     chainId: useChainId(),
     address: address,
-    token: `0x${selectedCurrency.address}`,
+    token: selectedCurrency.address as Address,
     watch: true,
   })
-
-  useEffect(() => {
-    if (assetValue) {
-      const formattedValue = ethers.utils.parseUnits(
-        assetValue,
-        selectedCurrency.decimals
-      )
-      setFormattedAssetValue(formattedValue)
-    }
-  }, [assetValue])
 
   const allowance = useTokenAllowance(
     selectedCurrency,
@@ -63,6 +41,24 @@ export default function Page() {
     address
   )
 
+  const { setKnote, isSetKnoteLoading } = useSetKnote(
+    selectedCurrency,
+    assetValue,
+    selectedCurrency,
+    assetValue,
+    address
+  )
+
+  useEffect(() => {
+    if (assetValue) {
+      const formattedValue = ethers.utils.parseUnits(
+        assetValue,
+        selectedCurrency.decimals
+      )
+      setFormattedAssetValue(formattedValue)
+    }
+  }, [assetValue])
+
   const handleAssetApproval = async () => {
     if (approveAsset) {
       try {
@@ -72,14 +68,6 @@ export default function Page() {
       }
     }
   }
-
-  const { setKnote, isSetKnoteLoading } = useSetKnote(
-    selectedCurrency,
-    assetValue,
-    selectedCurrency,
-    assetValue,
-    address
-  )
 
   const handleSetKnote = async () => {
     if (setKnote) {

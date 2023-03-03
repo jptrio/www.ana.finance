@@ -12,7 +12,7 @@ export const KNOTES_CONTRACT = '0x67349869e4274B4171d260D6b5322D88f8f57529'
 export const AVAILABLE_TOKENS: Currency[] = [
   {
     chainId: mainnet.id,
-    address: 'Bc2e044D7BF7D347807698Ea7556F648Dfaa4539',
+    address: '0xBc2e044D7BF7D347807698Ea7556F648Dfaa4539',
     name: 'Token A',
     symbol: 'TOKNA',
     decimals: 18,

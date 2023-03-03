@@ -2,14 +2,12 @@ import ERC20ABI from '@/../contracts/ERC20.json'
 import { useTokenAllowance } from '@/hooks/useTokenAllowance'
 import { Currency } from '@/models/currency'
 import { MaxUint256 } from '@ethersproject/constants'
-import { BigNumber, ethers } from 'ethers'
-import { useCallback, useEffect, useMemo } from 'react'
+import { BigNumber } from 'ethers'
+import { useMemo } from 'react'
 import {
   Address,
   useAccount,
   useChainId,
-  useContract,
-  useContractRead,
   useContractWrite,
   usePrepareContractWrite,
   useWaitForTransaction,
@@ -23,7 +21,7 @@ export function useApproval(
   const { config: approveConfig } = usePrepareContractWrite({
     chainId: useChainId(),
     abi: ERC20ABI,
-    address: `0x${currencyToApprove.address}`,
+    address: currencyToApprove.address as Address,
     functionName: 'approve',
     args: [currencyToApprove.address, MaxUint256],
     overrides: {

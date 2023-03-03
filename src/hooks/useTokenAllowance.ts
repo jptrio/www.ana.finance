@@ -1,7 +1,7 @@
 import ERC20ABI from '@/../contracts/ERC20.json'
 import { Currency } from '@/models/currency'
 import { useMemo } from 'react'
-import { useChainId, useContractRead } from 'wagmi'
+import { Address, useChainId, useContractRead } from 'wagmi'
 
 export function useTokenAllowance(
   currency: Currency,
@@ -15,7 +15,7 @@ export function useTokenAllowance(
 
   const { data, error } = useContractRead({
     chainId: useChainId(),
-    address: `0x${currency.address}`,
+    address: currency.address as Address,
     abi: ERC20ABI,
     functionName: 'allowance',
     args: inputs,
