@@ -18,9 +18,11 @@ export function useTokenAllowance(
     abi: ERC20ABI,
     functionName: 'allowance',
     args: inputs,
+    watch: true,
   })
 
   const rawAmount = data?.toString()
+
   const allowance = useMemo(() => rawAmount || undefined, [currency, rawAmount])
 
   return useMemo(() => ({ tokenAllowance: allowance }), [allowance])

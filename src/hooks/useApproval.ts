@@ -1,13 +1,13 @@
 import ERC20ABI from '@/../contracts/ERC20.json'
 import { useTokenAllowance } from '@/hooks/useTokenAllowance'
 import { Currency } from '@/models/currency'
-import { ethers } from 'ethers'
-import { useCallback, useMemo } from 'react'
+import { BigNumber, ethers } from 'ethers'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useAccount, useChainId, useContract, useContractRead } from 'wagmi'
 
 export function useApproval(
   currencyToApprove: Currency,
-  amountToApprove: string,
+  amountToApprove: BigNumber,
   spender: string | undefined
 ) {
   const approvalState = useApprovalStateForSpender(
@@ -16,34 +16,48 @@ export function useApproval(
     spender
   )
 
-  const approvalCallback = useCallback(async () => {
-    //
-  }, [approvalState, currencyToApprove, amountToApprove, spender])
+  const {data} = useContractRead({
+    abi: ERC20ABI,
+    address: `0x${currencyToApprove.address}`,
+    functionName: 'approve',
+    args: [spender, amountToApprove],
+  })
+
+  useEffect(() => {
+    if (true) {
+
+    }
+  }, [true])
+
+  const approvalCallback = useCallback(async () => {}, [
+    approvalState,
+    currencyToApprove,
+    amountToApprove,
+    spender,
+  ])
 
   return [approvalState, approvalCallback]
 }
 
 export function useApprovalStateForSpender(
   currencyToApprove: Currency,
-  amountToApprove: string,
+  amountToApprove: BigNumber,
   spender: string | undefined
 ) {
-  const { address } = useAccount()
+  const { address,  } = useAccount()
 
-  const { tokenAllowance } = useTokenAllowance(
+  const { tokenAllowance: currentApprovedAllowance } = useTokenAllowance(
     currencyToApprove,
     address,
     spender
   )
 
   return useMemo(() => {
-    if (!amountToApprove || !spender || !tokenAllowance) return 'UNKNOWN'
+    if (!amountToApprove || !spender || !currentApprovedAllowance)
+      return 'UNKNOWN'
 
-    return ethers.utils.formatUnits(
-      tokenAllowance,
-      currencyToApprove.decimals
-    ) < amountToApprove
+    return currentApprovedAllowance.lt(amountToApprove)
       ? 'NOT_APPROVED'
       : 'APPROVED'
-  }, [amountToApprove, currencyToApprove, spender, tokenAllowance])
+  }, [amountToApprove, currencyToApprove, spender, currentApprovedAllowance])
 }

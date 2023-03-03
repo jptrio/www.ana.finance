@@ -6,6 +6,7 @@ interface CurrencyInputProps {
   onUserInput: (value: string) => void
   onMaxHit?: () => void
   currency: Currency
+  isDisabled?: boolean
 }
 
 export function CurrencyInput({
@@ -13,10 +14,12 @@ export function CurrencyInput({
   onUserInput,
   onMaxHit,
   currency,
+  isDisabled,
 }: CurrencyInputProps) {
   return (
     <InputGroup>
       <Input
+        isDisabled={isDisabled}
         size='lg'
         type='text'
         minLength={1}

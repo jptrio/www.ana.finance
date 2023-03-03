@@ -1,100 +1,99 @@
-import knotes from '@/../contracts/KNOTES.json'
-import CurrencySearchModal from '@/components/web3/CurrencySearchModal'
+import ERC20ABI from '@/../contracts/ERC20.json'
+import KNOTEABI from '@/../contracts/KNOTES.json'
 import { CurrencySelector } from '@/components/web3/CurrencySelector'
 import { CurrencyInput } from '@/components/web3/CurrenyInput'
-import {
-  AVAILABLE_TOKENS,
-  KNOTES_CONTRACT,
-  TOKEN_A_CONTRACT,
-  TOKEN_B_CONTRACT,
-} from '@/config/constants'
-import { useApproval } from '@/hooks/useApproval'
+import { AVAILABLE_TOKENS, KNOTES_CONTRACT } from '@/config/constants'
+import { useTokenAllowance } from '@/hooks/useTokenAllowance'
 import { Currency } from '@/models/currency'
 import { Card, CardBody, CardFooter, CardHeader } from '@chakra-ui/card'
-import {
-  Box,
-  Button,
-  Center,
-  Flex,
-  Heading,
-  Image,
-  Input,
-  InputGroup,
-  InputRightElement,
-  Text,
-} from '@chakra-ui/react'
+import { Box, Button, Center, Flex, Heading, Text } from '@chakra-ui/react'
+import { MaxUint256 } from '@ethersproject/constants'
+import { ethers } from 'ethers'
 import { useEffect, useState } from 'react'
 import {
   useAccount,
+  useChainId,
   useContractWrite,
   usePrepareContractWrite,
   useWaitForTransaction,
 } from 'wagmi'
 
 export default function Page() {
-  // TODO: available pairs to be resolved from the contract instead
-  const [selectedCurrency, setCurrency] = useState(AVAILABLE_TOKENS[0])
-
-  const [assetValue, setAssetValue] = useState('')
-
   const { address, isConnected } = useAccount()
 
-  // const {
-  //   config,
-  //   error: prepareError,
-  //   isError: isPrepareError,
-  // } = usePrepareContractWrite({
-  //   chainId: 5,
-  //   address: '0x25fb0bb8d4a0c9885aa5ecf75c93fad5ac5df6f2',
-  //   abi: contributorNft.abi,
-  //   functionName: 'mint',
-  //   args: [address, [1], [1], '0x'],
-  //   overrides: {
-  //     from: address
-  //   }
-  // })
+  const [assetValue, setAssetValue] = useState('')
+  const [selectedCurrency, setCurrency] = useState(AVAILABLE_TOKENS[0])
 
-  // const {
-  //   config,
-  //   error: prepareError,
-  //   isError: isPrepareError,
-  // } = usePrepareContractWrite({
-  //   chainId: 5,
-  //   address: TOKEN_B_CONTRACT,
-  //   abi: erc20A.abi,
-  //   functionName: 'mint',
-  //   args: [address, ethers.utils.parseEther('100000000000000000000000000')],
-  //   overrides: {
-  //     from: address,
-  //   },
-  // })
-
-  // const {
-  //   config,
-  //   error: prepareError,
-  //   isError: isPrepareError,
-  // } = usePrepareContractWrite({
-  //   chainId: 5,
-  //   address: KNOTES_CONTRACT,
-  //   abi: knotes.abi,
-  //   functionName: 'setKNOTE',
-  //   args: [TOKEN_A_CONTRACT, '100000000000', TOKEN_B_CONTRACT, '100000000000'],
-  //   overrides: {
-  //     from: address,
-  //   },
-  // })
-
-  // const { data, error, isError, write } = useContractWrite(config)
-
-  // const { isLoading, isSuccess } = useWaitForTransaction({
-  //   hash: data?.hash,
-  // })
-
-  const [approvalState, approveCallback] = useApproval(
+  const allowance = useTokenAllowance(
     selectedCurrency,
-    assetValue,
-    address
+    address,
+    selectedCurrency.address
   )
+
+  useEffect(() => {
+    console.log('Allowance Changed', allowance)
+  }, [allowance])
+
+  const { config: approveConfig } = usePrepareContractWrite({
+    chainId: useChainId(),
+    abi: ERC20ABI,
+    address: `0x${selectedCurrency.address}`,
+    functionName: 'approve',
+    args: [selectedCurrency.address, MaxUint256],
+    overrides: {
+      from: address,
+    },
+  })
+
+  const { data: approveData, write: approveAsset } =
+    useContractWrite(approveConfig)
+
+  const { isLoading: isApprovalLoading } = useWaitForTransaction({
+    hash: approveData?.hash,
+  })
+
+  const { config: addLiquidityConfig } = usePrepareContractWrite({
+    chainId: useChainId(),
+    address: KNOTES_CONTRACT,
+    abi: KNOTEABI.abi,
+    functionName: 'setKNOTE',
+    args: [
+      selectedCurrency.address,
+      assetValue,
+      selectedCurrency.address,
+      assetValue,
+    ],
+    overrides: {
+      from: address,
+    },
+  })
+
+  const { data: setKnoteData, write: setKnote } =
+    useContractWrite(addLiquidityConfig)
+
+  const { isLoading: isSetKnoteLoading } = useWaitForTransaction({
+    hash: approveData?.hash,
+  })
+
+  const handleAssetApproval = async () => {
+    if (approveAsset) {
+      try {
+        await approveAsset()
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  }
+
+  const handleSetKnote = async () => {
+    if (setKnote) {
+      try {
+        await setKnote()
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  }
 
   const handleAssetAmountInput = (tokenAValue: string) => {
     setAssetValue(tokenAValue)
@@ -105,7 +104,6 @@ export default function Page() {
   }
 
   return (
-    
     <Center width='100vw' height='100vh'>
       {isConnected ? (
         <Box width='100%' maxW='xl' borderRadius='md'>
@@ -134,54 +132,76 @@ export default function Page() {
               </Text>
               <Flex gap='2'>
                 <CurrencyInput
+                  isDisabled={allowance.tokenAllowance == 0}
                   value={assetValue}
                   onUserInput={handleAssetAmountInput}
                   currency={selectedCurrency}
                 />
               </Flex>
 
-              <Text paddingTop='12' paddingBottom='2' fontWeight='light'>
-                Prices and pool share
-              </Text>
-              <Box
-                border='solid'
-                borderWidth='thin'
-                borderRadius='lg'
-                padding='4'
-                borderColor='gray.200'
-              >
-                <Flex justifyContent='space-between'>
-                  <Flex direction='column' textAlign='center'>
-                    <Text>0.000</Text>
-                    <Text fontSize='sm'>
-                      {selectedCurrency.symbol} per {}
-                    </Text>
-                  </Flex>
-                  <Flex direction='column' textAlign='center'>
-                    <Text>0.0%</Text>
-                    <Text fontSize='sm'>Fee Tier</Text>
-                  </Flex>
-                  <Flex direction='column' textAlign='center'>
-                    <Text>0.000</Text>
-                    <Text fontSize='sm'>
-                      {} per {selectedCurrency.symbol}
-                    </Text>
-                  </Flex>
-                </Flex>
-              </Box>
+              {/*<Text paddingTop='12' paddingBottom='2' fontWeight='light'>*/}
+              {/*  Prices and pool share*/}
+              {/*</Text>*/}
+              {/*<Box*/}
+              {/*  border='solid'*/}
+              {/*  borderWidth='thin'*/}
+              {/*  borderRadius='lg'*/}
+              {/*  padding='4'*/}
+              {/*  borderColor='gray.200'*/}
+              {/*>*/}
+              {/*  <Flex justifyContent='space-between'>*/}
+              {/*    <Flex direction='column' textAlign='center'>*/}
+              {/*      <Text>0.000</Text>*/}
+              {/*      <Text fontSize='sm'>*/}
+              {/*        {selectedCurrency.symbol} per {}*/}
+              {/*      </Text>*/}
+              {/*    </Flex>*/}
+              {/*    <Flex direction='column' textAlign='center'>*/}
+              {/*      <Text>0.0%</Text>*/}
+              {/*      <Text fontSize='sm'>Fee Tier</Text>*/}
+              {/*    </Flex>*/}
+              {/*    <Flex direction='column' textAlign='center'>*/}
+              {/*      <Text>0.000</Text>*/}
+              {/*      <Text fontSize='sm'>*/}
+              {/*        {} per {selectedCurrency.symbol}*/}
+              {/*      </Text>*/}
+              {/*    </Flex>*/}
+              {/*  </Flex>*/}
+              {/*</Box>*/}
             </CardBody>
 
             <CardFooter>
-              <Button
-                size='lg'
-                shadow='md'
-                isDisabled
-                width='100%'
-                borderRadius='lg'
-                colorScheme='orange'
-              >
-                Enter an amount
-              </Button>
+              {allowance.tokenAllowance == 0 ? (
+                <Button
+                  size='lg'
+                  shadow='md'
+                  width='100%'
+                  borderRadius='lg'
+                  colorScheme='orange'
+                  isDisabled={isApprovalLoading}
+                  onClick={handleAssetApproval}
+                >
+                  {isApprovalLoading
+                    ? `Approving ${selectedCurrency.symbol}`
+                    : `Approve ${selectedCurrency.symbol}`}
+                </Button>
+              ) : (
+                <Button
+                  size='lg'
+                  shadow='md'
+                  width='100%'
+                  borderRadius='lg'
+                  colorScheme='orange'
+                  onClick={handleSetKnote}
+                  isDisabled={assetValue == '' || isSetKnoteLoading}
+                >
+                  {isSetKnoteLoading
+                    ? 'Sending Transaction'
+                    : assetValue == ''
+                    ? 'Enter an amount'
+                    : `Bond ${selectedCurrency.symbol}`}
+                </Button>
+              )}
             </CardFooter>
           </Card>
         </Box>
