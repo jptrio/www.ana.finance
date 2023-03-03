@@ -35,7 +35,7 @@ export function CurrencySelector({
         variant='outline'
         width='100%'
         _hover={{
-          borderColor: 'green',
+          borderColor: 'green.600',
           color: 'lightgray',
           cursor: 'pointer',
         }}

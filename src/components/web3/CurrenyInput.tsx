@@ -48,8 +48,8 @@ export function CurrencyInput({
         spellCheck='false'
         autoComplete='off'
         inputMode='decimal'
-        colorScheme='green'
         isDisabled={isDisabled}
+        focusBorderColor='green.600'
         pattern='^[0-9]*[.,]?[0-9]*$'
         placeholder='Deposit Amount'
         onChange={handleInput}
