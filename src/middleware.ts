@@ -1,4 +1,3 @@
-import countries from '@../../lib/countries.json'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
@@ -9,13 +8,8 @@ export const config = {
 export function middleware(req: NextRequest) {
   const { nextUrl: url, geo } = req
   const country = geo?.country
-  // const city = geo?.city
-  // const region = geo?.region
-
-  // const countryInfo = countries.find(x => x.cca2 === country)
 
   const blockedCountries = [
-    'US',
     'CM',
     'CF',
     'GA',
