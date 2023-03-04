@@ -38,7 +38,7 @@ export default function CurrencySearchModal({
                 borderRadius='lg'
                 key={token.name}
                 onClick={() => handleCurrencySelect(token)}
-                _hover={{ backgroundColor: 'gray.800', cursor: 'pointer' }}
+                _hover={{ backgroundColor: 'gray.200', cursor: 'pointer' }}
               >
                 <Flex alignItems='center'>
                   <Image
