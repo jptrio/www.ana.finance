@@ -17,8 +17,6 @@ export default function CurrencySearchModal({
   const availableTokens = AVAILABLE_TOKENS
 
   const handleCurrencySelect = (token: any) => {
-    alert(`Selected ${JSON.stringify(token)}`)
-
     onTokenSelect(token)
   }
 

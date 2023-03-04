@@ -8,6 +8,7 @@ import {
   InputRightElement,
   Text,
 } from '@chakra-ui/react'
+import { FetchBalanceResult } from '@wagmi/core'
 import { ChangeEvent } from 'react'
 
 interface CurrencyInputProps {
@@ -16,7 +17,7 @@ interface CurrencyInputProps {
   onMaxHit?: () => void
   currency: Currency
   isDisabled?: boolean
-  balance?: string
+  balance?: FetchBalanceResult | undefined
 }
 
 export function CurrencyInput({
@@ -28,7 +29,7 @@ export function CurrencyInput({
   balance,
 }: CurrencyInputProps) {
   const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
-    if (balance && e.target.value > balance) {
+    if (balance && e.target.value > balance.formatted) {
       onMaxHit && onMaxHit()
     }
 
@@ -78,7 +79,7 @@ export function CurrencyInput({
           alignSelf='end'
           isTruncated
         >
-          Balance: {balance}
+          Balance: {balance?.formatted || 0} {balance?.symbol}
         </Badge>
       </InputRightElement>
     </InputGroup>

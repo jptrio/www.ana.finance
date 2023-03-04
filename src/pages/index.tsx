@@ -13,14 +13,16 @@ import { useEffect, useState } from 'react'
 import { Address, useAccount, useBalance, useChainId } from 'wagmi'
 
 export default function Page() {
+  const { address, isConnected } = useAccount()
+
   const devModeEnabled = process.env.NEXT_PUBLIC_DEV_MODE
   const [isDevPanelOpen, setIsDevPanelOpen] = useState(false)
 
-  const { address, isConnected } = useAccount()
-
   const [assetValue, setAssetValue] = useState('')
+  const [hasMounted, setHasMounted] = useState(false)
   const [selectedCurrency, setCurrency] = useState(AVAILABLE_TOKENS[0])
   const [formattedAssetValue, setFormattedAssetValue] = useState<BigNumber>()
+  const [isAssetApproved, setIsAssetApproved] = useState(false)
 
   const { data: balanceData } = useBalance({
     chainId: useChainId(),
@@ -48,16 +50,6 @@ export default function Page() {
     assetValue,
     address
   )
-
-  useEffect(() => {
-    if (assetValue) {
-      const formattedValue = ethers.utils.parseUnits(
-        assetValue,
-        selectedCurrency.decimals
-      )
-      setFormattedAssetValue(formattedValue)
-    }
-  }, [assetValue])
 
   const handleAssetApproval = async () => {
     if (approveAsset) {
@@ -87,102 +79,84 @@ export default function Page() {
     setCurrency(asset)
   }
 
-  return (
-    <Center width='100vw' height='100vh'>
-      <DeveloperPanel
-        isOpen={isDevPanelOpen}
-        onClose={() => setIsDevPanelOpen(false)}
-      />
-      {isConnected ? (
-        <Box position='relative' width='100%' maxW='xl' borderRadius='md'>
-          {devModeEnabled && (
-            <Button
-              position='absolute'
-              top='0'
-              right='0'
-              zIndex='50'
-              onClick={() => setIsDevPanelOpen(true)}
-            >
-              Dev Panel
-            </Button>
-          )}
-          <Card
-            shadow='md'
-            borderRadius='xl'
-            variant='elevated'
-            bgColor='yellow.50'
-          >
-            <CardHeader>
-              <Heading size='md' textAlign='center' fontWeight='semibold'>
-                Add Liquidity
-              </Heading>
-            </CardHeader>
-            <CardBody>
-              <Text paddingBottom='2' fontWeight='light'>
-                Select Asset
-              </Text>
-              <CurrencySelector
-                value={selectedCurrency}
-                onTokenSelect={asset => handleCurrencySelect(asset)}
-              />
+  useEffect(() => {
+    setHasMounted(true)
+  }, [])
 
-              <Text paddingTop='12' paddingBottom='2' fontWeight='light'>
-                Deposit Amount
-              </Text>
-              <Flex gap='2'>
+  useEffect(() => {
+    if (assetValue) {
+      const formattedValue = ethers.utils.parseUnits(
+        assetValue,
+        selectedCurrency.decimals
+      )
+      setFormattedAssetValue(formattedValue)
+    }
+  }, [assetValue])
+
+  useEffect(() => {
+    if (allowance.tokenAllowance > 0) {
+      setIsAssetApproved(true)
+    }
+  }, [allowance.tokenAllowance])
+
+  if (!hasMounted) return null
+
+  return (
+    <Center height='100vh' width='100vw'>
+      <Button
+        right='4'
+        bottom='4'
+        position='absolute'
+        colorScheme='blackAlpha'
+        onClick={() => setIsDevPanelOpen(true)}
+      >
+        Dev Panel
+      </Button>
+
+      {isConnected ? (
+        <>
+          <DeveloperPanel
+            isOpen={isDevPanelOpen}
+            onClose={() => setIsDevPanelOpen(false)}
+          />
+          <Card width='100%' maxWidth='xl'>
+            <CardBody>
+              <Box>
+                <Text marginBottom='1' fontWeight='light'>
+                  Select Asset
+                </Text>
+                <CurrencySelector
+                  value={selectedCurrency}
+                  onTokenSelect={handleCurrencySelect}
+                />
+              </Box>
+
+              <Box paddingTop='8'>
+                <Text marginBottom='1' fontWeight='light'>
+                  Deposit Amount
+                </Text>
                 <CurrencyInput
-                  isDisabled={allowance.tokenAllowance == 0}
                   value={assetValue}
                   onUserInput={handleAssetAmountInput}
                   currency={selectedCurrency}
-                  balance={balanceData?.formatted}
+                  balance={balanceData}
                 />
-              </Flex>
-
-              {/*<Text paddingTop='12' paddingBottom='2' fontWeight='light'>*/}
-              {/*  Prices and pool share*/}
-              {/*</Text>*/}
-              {/*<Box*/}
-              {/*  border='solid'*/}
-              {/*  borderWidth='thin'*/}
-              {/*  borderRadius='lg'*/}
-              {/*  padding='4'*/}
-              {/*  borderColor='gray.200'*/}
-              {/*>*/}
-              {/*  <Flex justifyContent='space-between'>*/}
-              {/*    <Flex direction='column' textAlign='center'>*/}
-              {/*      <Text>0.000</Text>*/}
-              {/*      <Text fontSize='sm'>*/}
-              {/*        {selectedCurrency.symbol} per {}*/}
-              {/*      </Text>*/}
-              {/*    </Flex>*/}
-              {/*    <Flex direction='column' textAlign='center'>*/}
-              {/*      <Text>0.0%</Text>*/}
-              {/*      <Text fontSize='sm'>Fee Tier</Text>*/}
-              {/*    </Flex>*/}
-              {/*    <Flex direction='column' textAlign='center'>*/}
-              {/*      <Text>0.000</Text>*/}
-              {/*      <Text fontSize='sm'>*/}
-              {/*        {} per {selectedCurrency.symbol}*/}
-              {/*      </Text>*/}
-              {/*    </Flex>*/}
-              {/*  </Flex>*/}
-              {/*</Box>*/}
+              </Box>
             </CardBody>
 
             <CardFooter>
-              {allowance.tokenAllowance == 0 ? (
+              {!isAssetApproved ? (
                 <Button
                   size='lg'
                   shadow='md'
                   width='100%'
-                  borderRadius='lg'
                   colorScheme='orange'
-                  isDisabled={isApprovalLoading}
                   onClick={handleAssetApproval}
+                  isLoading={isApprovalLoading}
+                  isDisabled={isApprovalLoading}
                 >
                   {isApprovalLoading
-                    ? `Approving ${selectedCurrency.symbol}`
+                    ? 'Sending Transaction...'
                     : `Approve ${selectedCurrency.symbol}`}
                 </Button>
               ) : (
@@ -190,13 +164,13 @@ export default function Page() {
                   size='lg'
                   shadow='md'
                   width='100%'
-                  borderRadius='lg'
                   colorScheme='orange'
                   onClick={handleSetKnote}
+                  isLoading={isSetKnoteLoading}
                   isDisabled={assetValue == '' || isSetKnoteLoading}
                 >
                   {isSetKnoteLoading
-                    ? 'Sending Transaction'
+                    ? 'Sending Transaction...'
                     : assetValue == ''
                     ? 'Enter an amount'
                     : 'Set KNOTE'}
@@ -204,13 +178,9 @@ export default function Page() {
               )}
             </CardFooter>
           </Card>
-        </Box>
-      ) : (
-        <>
-          <Text fontSize='lg' fontWeight='bold'>
-            Connect your wallet!
-          </Text>
         </>
+      ) : (
+        <Heading>Connect your wallet!</Heading>
       )}
     </Center>
   )
