@@ -16,7 +16,8 @@ import {
 export function useApproval(
   currencyToApprove: Currency,
   amountToApprove: string,
-  spender: string | undefined
+  spender: string | undefined,
+  onSuccess?: () => void
 ) {
   const { config: approveConfig } = usePrepareContractWrite({
     chainId: useChainId(),
@@ -34,11 +35,15 @@ export function useApproval(
 
   const { isLoading: isApprovalLoading } = useWaitForTransaction({
     hash: approveData?.hash,
+    onSuccess: () => {
+      onSuccess && onSuccess()
+    },
   })
 
   return {
     approveAsset,
     isApprovalLoading,
+    hash: approveData?.hash,
   }
 }
 

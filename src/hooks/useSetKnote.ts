@@ -15,7 +15,8 @@ export function useSetKnote(
   currencyAAmount: string,
   currencyB: Currency,
   currencyBAmount: string,
-  sender: string | undefined
+  sender: string | undefined,
+  onSuccess?: () => void
 ) {
   const { config: addLiquidityConfig } = usePrepareContractWrite({
     chainId: useChainId(),
@@ -38,10 +39,14 @@ export function useSetKnote(
 
   const { isLoading: isSetKnoteLoading } = useWaitForTransaction({
     hash: setKnoteData?.hash,
+    onSuccess: () => {
+      onSuccess && onSuccess()
+    },
   })
 
   return {
     setKnote,
     isSetKnoteLoading,
+    hash: setKnoteData?.hash,
   }
 }

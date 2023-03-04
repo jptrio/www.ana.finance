@@ -7,7 +7,7 @@ import { useSetKnote } from '@/hooks/useSetKnote'
 import { useTokenAllowance } from '@/hooks/useTokenAllowance'
 import { Currency } from '@/models/currency'
 import { Card, CardBody, CardFooter, CardHeader } from '@chakra-ui/card'
-import { Box, Button, Center, Flex, Heading, Text } from '@chakra-ui/react'
+import { Box, Button, Center, Heading, Text, useToast } from '@chakra-ui/react'
 import { BigNumber, ethers } from 'ethers'
 import { useEffect, useState } from 'react'
 import { Address, useAccount, useBalance, useChainId } from 'wagmi'
@@ -24,6 +24,8 @@ export default function Page() {
   const [formattedAssetValue, setFormattedAssetValue] = useState<BigNumber>()
   const [isAssetApproved, setIsAssetApproved] = useState(false)
 
+  const toast = useToast()
+
   const { data: balanceData } = useBalance({
     chainId: useChainId(),
     address: address,
@@ -31,24 +33,48 @@ export default function Page() {
     watch: true,
   })
 
+  const showToast = (title: string, description: string) => {
+    toast({
+      title: title,
+      description: description,
+      status: 'success',
+      duration: 5000,
+      isClosable: true,
+    })
+  }
+
   const allowance = useTokenAllowance(
     selectedCurrency,
     address,
     selectedCurrency.address
   )
 
-  const { approveAsset, isApprovalLoading } = useApproval(
-    selectedCurrency,
-    assetValue,
-    address
+  const {
+    approveAsset,
+    isApprovalLoading,
+    hash: approvalHash,
+  } = useApproval(selectedCurrency, assetValue, address, () =>
+    showToast(
+      'Success',
+      `KNOTE minted successfully! https://goerli.etherscan.io/tx/${approvalHash}`
+    )
   )
 
-  const { setKnote, isSetKnoteLoading } = useSetKnote(
+  const {
+    setKnote,
+    isSetKnoteLoading,
+    hash: setKnoteHash,
+  } = useSetKnote(
     selectedCurrency,
     assetValue,
     selectedCurrency,
     assetValue,
-    address
+    address,
+    () =>
+      showToast(
+        'Success',
+        `Asset approved successfully! https://goerli.etherscan.io/tx/${setKnoteHash}`
+      )
   )
 
   const handleAssetApproval = async () => {
