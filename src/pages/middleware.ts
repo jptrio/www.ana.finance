@@ -47,7 +47,7 @@ export async function middleware(req: NextRequest) {
     'IQ',
   ]
 
-  if (countryInfo && blockedCountries.includes(countryInfo.cca2)) {
+  if (country && blockedCountries.includes(country)) {
     return new NextResponse(null, { status: 403 })
   }
 
