@@ -16,7 +16,6 @@ import { publicProvider } from 'wagmi/providers/public'
 
 export default function RainbowKit({ children }: { children: ReactNode }) {
   const { chains, provider } = configureChains(ETH_CHAINS, [
-    publicProvider(),
     alchemyProvider({
       apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY as string,
     }),
