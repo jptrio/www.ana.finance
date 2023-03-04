@@ -1,17 +1,18 @@
 import countries from '@../../lib/countries.json'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
 export const config = {
   matcher: '/',
 }
 
-export async function middleware(req: NextRequest) {
+export function middleware(req: NextRequest) {
   const { nextUrl: url, geo } = req
   const country = geo?.country
-  const city = geo?.city
-  const region = geo?.region
+  // const city = geo?.city
+  // const region = geo?.region
 
-  const countryInfo = countries.find(x => x.cca2 === country)
+  // const countryInfo = countries.find(x => x.cca2 === country)
 
   const blockedCountries = [
     'US',
@@ -51,5 +52,5 @@ export async function middleware(req: NextRequest) {
     return new NextResponse(null, { status: 403 })
   }
 
-  return NextResponse.rewrite(url)
+  return NextResponse.next()
 }
