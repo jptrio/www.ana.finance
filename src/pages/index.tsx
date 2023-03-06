@@ -6,8 +6,17 @@ import { useApproval } from '@/hooks/useApproval'
 import { useSetKnote } from '@/hooks/useSetKnote'
 import { useTokenAllowance } from '@/hooks/useTokenAllowance'
 import { Currency } from '@/models/currency'
-import { Card, CardBody, CardFooter, CardHeader } from '@chakra-ui/card'
-import { Box, Button, Center, Heading, Text, useToast } from '@chakra-ui/react'
+import { Card, CardBody, CardFooter } from '@chakra-ui/card'
+import {
+  Box,
+  Button,
+  Center,
+  Flex,
+  Heading,
+  Image,
+  Text,
+  useToast,
+} from '@chakra-ui/react'
 import { animated, useSpring } from '@react-spring/web'
 import { BigNumber, ethers } from 'ethers'
 import { useEffect, useState } from 'react'
@@ -126,11 +135,6 @@ export default function Page() {
     }
   }, [allowance.tokenAllowance])
 
-  const springs = useSpring({
-    from: { x: 0 },
-    to: { x: 500 },
-  })
-
   if (!hasMounted) return null
 
   return (
@@ -152,68 +156,71 @@ export default function Page() {
             isOpen={isDevPanelOpen}
             onClose={() => setIsDevPanelOpen(false)}
           />
-            <Card width='100%' maxWidth='xl' zIndex='10'>
-              <CardBody>
-                <Box>
-                  <Text marginBottom='1' fontWeight='light'>
-                    Select Asset
-                  </Text>
-                  <CurrencySelector
-                    value={selectedCurrency}
-                    onTokenSelect={handleCurrencySelect}
-                  />
-                </Box>
+          <Card width='100%' maxWidth='xl' zIndex='10'>
+            <CardBody>
+              <Box>
+                <Text marginBottom='1' fontWeight='light'>
+                  Select Asset
+                </Text>
+                <CurrencySelector
+                  value={selectedCurrency}
+                  onTokenSelect={handleCurrencySelect}
+                />
+              </Box>
 
-                <Box paddingTop='8'>
-                  <Text marginBottom='1' fontWeight='light'>
-                    Deposit Amount
-                  </Text>
-                  <CurrencyInput
-                    value={assetValue}
-                    onUserInput={handleAssetAmountInput}
-                    currency={selectedCurrency}
-                    balance={balanceData}
-                  />
-                </Box>
-              </CardBody>
+              <Box paddingTop='8'>
+                <Text marginBottom='1' fontWeight='light'>
+                  Deposit Amount
+                </Text>
+                <CurrencyInput
+                  value={assetValue}
+                  onUserInput={handleAssetAmountInput}
+                  currency={selectedCurrency}
+                  balance={balanceData}
+                />
+              </Box>
+            </CardBody>
 
-              <CardFooter>
-                {!isAssetApproved ? (
-                  <Button
-                    size='lg'
-                    shadow='md'
-                    width='100%'
-                    colorScheme='orange'
-                    onClick={handleAssetApproval}
-                    isLoading={isApprovalLoading}
-                    isDisabled={isApprovalLoading}
-                  >
-                    {isApprovalLoading
-                      ? 'Sending Transaction...'
-                      : `Approve ${selectedCurrency.symbol}`}
-                  </Button>
-                ) : (
-                  <Button
-                    size='lg'
-                    shadow='md'
-                    width='100%'
-                    colorScheme='orange'
-                    onClick={handleSetKnote}
-                    isLoading={isSetKnoteLoading}
-                    isDisabled={assetValue == '' || isSetKnoteLoading}
-                  >
-                    {isSetKnoteLoading
-                      ? 'Sending Transaction...'
-                      : assetValue == ''
-                      ? 'Enter an amount'
-                      : 'Set KNOTE'}
-                  </Button>
-                )}
-              </CardFooter>
-            </Card>
+            <CardFooter>
+              {!isAssetApproved ? (
+                <Button
+                  size='lg'
+                  shadow='md'
+                  width='100%'
+                  colorScheme='orange'
+                  onClick={handleAssetApproval}
+                  isLoading={isApprovalLoading}
+                  isDisabled={isApprovalLoading}
+                >
+                  {isApprovalLoading
+                    ? 'Sending Transaction...'
+                    : `Approve ${selectedCurrency.symbol}`}
+                </Button>
+              ) : (
+                <Button
+                  size='lg'
+                  shadow='md'
+                  width='100%'
+                  colorScheme='orange'
+                  onClick={handleSetKnote}
+                  isLoading={isSetKnoteLoading}
+                  isDisabled={assetValue == '' || isSetKnoteLoading}
+                >
+                  {isSetKnoteLoading
+                    ? 'Sending Transaction...'
+                    : assetValue == ''
+                    ? 'Enter an amount'
+                    : 'Set KNOTE'}
+                </Button>
+              )}
+            </CardFooter>
+          </Card>
         </>
       ) : (
-        <Heading>Connect your wallet!</Heading>
+        <Flex direction='column' alignItems='center' zIndex='9'>
+          <Image src='heart.png' alt='We Love Yields' zIndex='9' width='50%' />
+          <Heading>Connect your wallet!</Heading>
+        </Flex>
       )}
     </Center>
   )
