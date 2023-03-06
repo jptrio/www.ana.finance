@@ -17,10 +17,11 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react'
-import { animated, useSpring } from '@react-spring/web'
 import { BigNumber, ethers } from 'ethers'
 import { useEffect, useState } from 'react'
 import { Address, useAccount, useBalance, useChainId } from 'wagmi'
+
+import PhuqingGuy from '../components/ui/PhuqingGuy'
 
 export default function Page() {
   const { address, isConnected } = useAccount()
@@ -217,10 +218,18 @@ export default function Page() {
           </Card>
         </>
       ) : (
-        <Flex direction='column' alignItems='center' zIndex='9'>
-          <Image src='heart.png' alt='We Love Yields' zIndex='9' width='50%' />
-          <Heading>Connect your wallet!</Heading>
-        </Flex>
+        <>
+          <PhuqingGuy />
+          <Flex direction='column' alignItems='center' zIndex='9'>
+            <Image
+              src='heart.png'
+              alt='We Love Yields'
+              zIndex='9'
+              width='50%'
+            />
+            <Heading>Connect your wallet!</Heading>
+          </Flex>
+        </>
       )}
     </Center>
   )
