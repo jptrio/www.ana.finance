@@ -30,44 +30,15 @@ import {
   usePrepareContractWrite,
   useWaitForTransaction,
 } from 'wagmi'
+import Parallax from '../components/ui/Parallax'
+import PhuqingGuy from '../components/ui/PhuqingGuy'
 
 export default function Page() {
-  // TODO: available pairs to be resolved from the contract instead
   const [selectedCurrency, setCurrency] = useState(AVAILABLE_TOKENS[0])
 
   const [assetValue, setAssetValue] = useState('')
 
   const { address, isConnected } = useAccount()
-
-  // const {
-  //   config,
-  //   error: prepareError,
-  //   isError: isPrepareError,
-  // } = usePrepareContractWrite({
-  //   chainId: 5,
-  //   address: '0x25fb0bb8d4a0c9885aa5ecf75c93fad5ac5df6f2',
-  //   abi: contributorNft.abi,
-  //   functionName: 'mint',
-  //   args: [address, [1], [1], '0x'],
-  //   overrides: {
-  //     from: address
-  //   }
-  // })
-
-  // const {
-  //   config,
-  //   error: prepareError,
-  //   isError: isPrepareError,
-  // } = usePrepareContractWrite({
-  //   chainId: 5,
-  //   address: TOKEN_B_CONTRACT,
-  //   abi: erc20A.abi,
-  //   functionName: 'mint',
-  //   args: [address, ethers.utils.parseEther('100000000000000000000000000')],
-  //   overrides: {
-  //     from: address,
-  //   },
-  // })
 
   const {
     config,
@@ -195,112 +166,11 @@ export default function Page() {
               zIndex='5'
               display='block'
             />
-            {/* <Text display='block'>Connect your wallet!</Text> */}
-            <Box
-              height='auto'
-              width='auto'
-              position='fixed'
-              top='50px'
-              right='-15px'
-              zIndex='9'
-            >
-              <Image
-                src='phuqingGuy.png'
-                alt=''
-                width='300px'
-                height='auto'
-                transform='scaleX(-1)'
-              />
-            </Box>
+            <PhuqingGuy/>
           </>
         )}
       </Center>
-      <Flex
-        pos='fixed'
-        height='auto'
-        left='0'
-        right='0'
-        top='0'
-        bottom='0'
-        className='parallax'
-      >
-        <Image
-          src='parallax_bg.png'
-          alt=''
-          opacity='.35'
-          pos='fixed'
-          left='0'
-          right='0'
-          top='0'
-          bottom='0'
-          minHeight='100%'
-          minWidth='100%'
-        />
-      </Flex>
-      <Flex
-        pos='fixed'
-        height='auto'
-        left='0'
-        right='0'
-        top='0'
-        className='parallax'
-      >
-        <Image
-          src='parallax_4.png'
-          alt=''
-          width='100%'
-          height='auto'
-          zIndex='3'
-        />
-      </Flex>
-      <Flex
-        pos='fixed'
-        height='auto'
-        left='0'
-        right='0'
-        bottom='0'
-        className='parallax'
-      >
-        <Image
-          src='parallax_3.png'
-          alt=''
-          width='100%'
-          height='auto'
-          zIndex='2'
-        />
-        <Image
-          src='parallax_2.png'
-          alt=''
-          width='100%'
-          height='auto'
-          pos='fixed'
-          zIndex='1'
-        />
-        <Image
-          src='parallax_1.png'
-          alt=''
-          width='100%'
-          height='auto'
-          pos='fixed'
-          zIndex='0'
-        />
-      </Flex>
-      <Flex
-        pos='fixed'
-        height='auto'
-        left='0'
-        right='0'
-        bottom='-50px'
-        className='parallax'
-      >
-        <Image
-          src='parallax_5.png'
-          alt=''
-          width='100%'
-          height='100%'
-          zIndex='5'
-        />
-      </Flex>
+      <Parallax/>
     </>
   )
 }
