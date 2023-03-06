@@ -12,17 +12,17 @@ import {
 import { ReactNode } from 'react'
 import { WagmiConfig, configureChains, createClient } from 'wagmi'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
-import { publicProvider } from 'wagmi/providers/public'
 
 export default function RainbowKit({ children }: { children: ReactNode }) {
   const { chains, provider } = configureChains(ETH_CHAINS, [
-    publicProvider(),
-    alchemyProvider({ apiKey: process.env.ALCHEMY_API_KEY as string }),
+    alchemyProvider({
+      apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY as string,
+    }),
   ])
 
   const connectors = connectorsForWallets([
     {
-      groupName: 'Recommended',
+      groupName: 'Recommended Wallets',
       wallets: [metaMaskWallet({ chains }), walletConnectWallet({ chains })],
     },
   ])

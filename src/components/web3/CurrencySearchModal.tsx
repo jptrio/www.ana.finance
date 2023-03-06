@@ -17,8 +17,6 @@ export default function CurrencySearchModal({
   const availableTokens = AVAILABLE_TOKENS
 
   const handleCurrencySelect = (token: any) => {
-    alert(`Selected ${JSON.stringify(token)}`)
-
     onTokenSelect(token)
   }
 
@@ -38,7 +36,7 @@ export default function CurrencySearchModal({
                 borderRadius='lg'
                 key={token.name}
                 onClick={() => handleCurrencySelect(token)}
-                _hover={{ backgroundColor: 'gray.800', cursor: 'pointer' }}
+                _hover={{ backgroundColor: 'gray.100', cursor: 'pointer' }}
               >
                 <Flex alignItems='center'>
                   <Image

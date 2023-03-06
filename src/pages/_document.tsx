@@ -1,6 +1,7 @@
 import theme from '@/config/theme'
 import { ColorModeScript } from '@chakra-ui/react'
 import { Head, Html, Main, NextScript } from 'next/document'
+import Parallax from '../components/ui/Parallax'
 
 export default function Document() {
   return (
@@ -10,6 +11,7 @@ export default function Document() {
         <ColorModeScript initialColorMode={theme.config.initialColorMode} />
         <Main />
         <NextScript />
+        <Parallax />
       </body>
     </Html>
   )

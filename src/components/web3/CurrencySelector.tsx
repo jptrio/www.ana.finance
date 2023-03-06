@@ -35,8 +35,7 @@ export function CurrencySelector({
         variant='outline'
         width='100%'
         _hover={{
-          borderColor: 'green',
-          color: 'lightgray',
+          backgroundColor: 'gray.100',
           cursor: 'pointer',
         }}
       >
@@ -47,9 +46,9 @@ export function CurrencySelector({
             alt={value.name}
             src={value.logoURI}
           ></Image>
-          <Flex marginLeft='4' direction='column'>
+          <Flex marginLeft='6' direction='column'>
             <Text>{value.name}</Text>
-            <Text color='gray.500' fontSize='xs'>
+            <Text fontSize='xs' fontWeight='light' colorScheme='gray'>
               {value.symbol}
             </Text>
           </Flex>

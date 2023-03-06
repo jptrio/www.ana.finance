@@ -1,71 +1,102 @@
-import knotes from '@/../contracts/KNOTES.json'
-import CurrencySearchModal from '@/components/web3/CurrencySearchModal'
 import { CurrencySelector } from '@/components/web3/CurrencySelector'
 import { CurrencyInput } from '@/components/web3/CurrenyInput'
-import {
-  AVAILABLE_TOKENS,
-  KNOTES_CONTRACT,
-  TOKEN_A_CONTRACT,
-  TOKEN_B_CONTRACT,
-} from '@/config/constants'
+import DeveloperPanel from '@/components/web3/DeveloperPanel'
+import { AVAILABLE_TOKENS } from '@/config/constants'
 import { useApproval } from '@/hooks/useApproval'
+import { useSetKnote } from '@/hooks/useSetKnote'
+import { useTokenAllowance } from '@/hooks/useTokenAllowance'
 import { Currency } from '@/models/currency'
 import { Card, CardBody, CardFooter, CardHeader } from '@chakra-ui/card'
-import {
-  Box,
-  Button,
-  Center,
-  Flex,
-  Heading,
-  Image,
-  Input,
-  InputGroup,
-  InputRightElement,
-  Text,
-} from '@chakra-ui/react'
+import { Box, Button, Center, Heading, Text, useToast } from '@chakra-ui/react'
+import { animated, useSpring } from '@react-spring/web'
+import { BigNumber, ethers } from 'ethers'
 import { useEffect, useState } from 'react'
-import {
-  useAccount,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
-} from 'wagmi'
-import Parallax from '../components/ui/Parallax'
-import PhuqingGuy from '../components/ui/PhuqingGuy'
+import { Address, useAccount, useBalance, useChainId } from 'wagmi'
 
 export default function Page() {
-  const [selectedCurrency, setCurrency] = useState(AVAILABLE_TOKENS[0])
-
-  const [assetValue, setAssetValue] = useState('')
-
   const { address, isConnected } = useAccount()
 
+  const devModeEnabled = process.env.NEXT_PUBLIC_DEV_MODE
+  const [isDevPanelOpen, setIsDevPanelOpen] = useState(false)
+
+  const [assetValue, setAssetValue] = useState('')
+  const [hasMounted, setHasMounted] = useState(false)
+  const [selectedCurrency, setCurrency] = useState(AVAILABLE_TOKENS[0])
+  const [formattedAssetValue, setFormattedAssetValue] = useState<BigNumber>()
+  const [isAssetApproved, setIsAssetApproved] = useState(false)
+
+  const toast = useToast()
+
+  const { data: balanceData } = useBalance({
+    chainId: useChainId(),
+    address: address,
+    token: selectedCurrency.address as Address,
+    watch: true,
+  })
+
+  const showToast = (title: string, description: string) => {
+    toast({
+      title: title,
+      description: description,
+      status: 'success',
+      duration: 5000,
+      isClosable: true,
+    })
+  }
+
+  const allowance = useTokenAllowance(
+    selectedCurrency,
+    address,
+    selectedCurrency.address
+  )
+
   const {
-    config,
-    error: prepareError,
-    isError: isPrepareError,
-  } = usePrepareContractWrite({
-    chainId: 5,
-    address: KNOTES_CONTRACT,
-    abi: knotes.abi,
-    functionName: 'setKNOTE',
-    args: [TOKEN_A_CONTRACT, '100000000000', TOKEN_B_CONTRACT, '100000000000'],
-    overrides: {
-      from: address,
-    },
-  })
+    approveAsset,
+    isApprovalLoading,
+    hash: approvalHash,
+  } = useApproval(selectedCurrency, assetValue, address, () =>
+    showToast(
+      'Success',
+      `KNOTE minted successfully! https://goerli.etherscan.io/tx/${approvalHash}`
+    )
+  )
 
-  const { data, error, isError, write } = useContractWrite(config)
-
-  const { isLoading, isSuccess } = useWaitForTransaction({
-    hash: data?.hash,
-  })
-
-  const [approvalState, approveCallback] = useApproval(
+  const {
+    setKnote,
+    isSetKnoteLoading,
+    hash: setKnoteHash,
+  } = useSetKnote(
     selectedCurrency,
     assetValue,
-    address
+    selectedCurrency,
+    assetValue,
+    address,
+    () =>
+      showToast(
+        'Success',
+        `Asset approved successfully! https://goerli.etherscan.io/tx/${setKnoteHash}`
+      )
   )
+
+  const handleAssetApproval = async () => {
+    if (approveAsset) {
+      try {
+        await approveAsset()
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  }
+
+  const handleSetKnote = async () => {
+    if (setKnote) {
+      try {
+        await setKnote()
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  }
 
   const handleAssetAmountInput = (tokenAValue: string) => {
     setAssetValue(tokenAValue)
@@ -75,102 +106,115 @@ export default function Page() {
     setCurrency(asset)
   }
 
-  return (
-    <>
-      <Center width='100vw' height='100vh'>
-        {isConnected ? (
-          <Box width='100%' maxW='xl' borderRadius='md' zIndex='10'>
-            <Card
-              shadow='md'
-              borderRadius='xl'
-              variant='elevated'
-              bgColor='yellow.50'
-            >
-              <CardHeader>
-                <Heading size='md' textAlign='center' fontWeight='semibold'>
-                  Add Liquidity
-                </Heading>
-              </CardHeader>
-              <CardBody>
-                <Text paddingBottom='2' fontWeight='light'>
-                  Select Asset
-                </Text>
-                <CurrencySelector
-                  value={selectedCurrency}
-                  onTokenSelect={asset => handleCurrencySelect(asset)}
-                />
+  useEffect(() => {
+    setHasMounted(true)
+  }, [])
 
-                <Text paddingTop='12' paddingBottom='2' fontWeight='light'>
-                  Deposit Amount
-                </Text>
-                <Flex gap='2'>
+  useEffect(() => {
+    if (assetValue) {
+      const formattedValue = ethers.utils.parseUnits(
+        assetValue,
+        selectedCurrency.decimals
+      )
+      setFormattedAssetValue(formattedValue)
+    }
+  }, [assetValue])
+
+  useEffect(() => {
+    if (allowance.tokenAllowance > 0) {
+      setIsAssetApproved(true)
+    }
+  }, [allowance.tokenAllowance])
+
+  const springs = useSpring({
+    from: { x: 0 },
+    to: { x: 500 },
+  })
+
+  if (!hasMounted) return null
+
+  return (
+    <Center height='100vh' width='100vw'>
+      {/* TODO: If not mainnet then show dev panel and show TokenA & TokenB */}
+      <Button
+        right='4'
+        bottom='4'
+        position='absolute'
+        colorScheme='blackAlpha'
+        zIndex='10'
+        onClick={() => setIsDevPanelOpen(true)}
+      >
+        Dev Panel
+      </Button>
+      {isConnected ? (
+        <>
+          <DeveloperPanel
+            isOpen={isDevPanelOpen}
+            onClose={() => setIsDevPanelOpen(false)}
+          />
+            <Card width='100%' maxWidth='xl' zIndex='10'>
+              <CardBody>
+                <Box>
+                  <Text marginBottom='1' fontWeight='light'>
+                    Select Asset
+                  </Text>
+                  <CurrencySelector
+                    value={selectedCurrency}
+                    onTokenSelect={handleCurrencySelect}
+                  />
+                </Box>
+
+                <Box paddingTop='8'>
+                  <Text marginBottom='1' fontWeight='light'>
+                    Deposit Amount
+                  </Text>
                   <CurrencyInput
                     value={assetValue}
                     onUserInput={handleAssetAmountInput}
                     currency={selectedCurrency}
+                    balance={balanceData}
                   />
-                </Flex>
-
-                <Text paddingTop='12' paddingBottom='2' fontWeight='light'>
-                  Prices and pool share
-                </Text>
-                <Box
-                  border='solid'
-                  borderWidth='thin'
-                  borderRadius='lg'
-                  padding='4'
-                  borderColor='gray.200'
-                >
-                  <Flex justifyContent='space-between'>
-                    <Flex direction='column' textAlign='center'>
-                      <Text>0.000</Text>
-                      <Text fontSize='sm'>
-                        {selectedCurrency.symbol} per {}
-                      </Text>
-                    </Flex>
-                    <Flex direction='column' textAlign='center'>
-                      <Text>0.0%</Text>
-                      <Text fontSize='sm'>Fee Tier</Text>
-                    </Flex>
-                    <Flex direction='column' textAlign='center'>
-                      <Text>0.000</Text>
-                      <Text fontSize='sm'>
-                        {} per {selectedCurrency.symbol}
-                      </Text>
-                    </Flex>
-                  </Flex>
                 </Box>
               </CardBody>
 
               <CardFooter>
-                <Button
-                  size='lg'
-                  shadow='md'
-                  isDisabled
-                  width='100%'
-                  borderRadius='lg'
-                  colorScheme='orange'
-                >
-                  Enter an amount
-                </Button>
+                {!isAssetApproved ? (
+                  <Button
+                    size='lg'
+                    shadow='md'
+                    width='100%'
+                    colorScheme='orange'
+                    onClick={handleAssetApproval}
+                    isLoading={isApprovalLoading}
+                    isDisabled={isApprovalLoading}
+                  >
+                    {isApprovalLoading
+                      ? 'Sending Transaction...'
+                      : `Approve ${selectedCurrency.symbol}`}
+                  </Button>
+                ) : (
+                  <Button
+                    size='lg'
+                    shadow='md'
+                    width='100%'
+                    colorScheme='orange'
+                    onClick={handleSetKnote}
+                    isLoading={isSetKnoteLoading}
+                    isDisabled={assetValue == '' || isSetKnoteLoading}
+                  >
+                    {isSetKnoteLoading
+                      ? 'Sending Transaction...'
+                      : assetValue == ''
+                      ? 'Enter an amount'
+                      : 'Set KNOTE'}
+                  </Button>
+                )}
               </CardFooter>
             </Card>
-          </Box>
-        ) : (
-          <>
-            <Image
-              src='heart.png'
-              alt=''
-              width='50%'
-              height='auto'
-              zIndex='5'
-              display='block'
-            />
-            <PhuqingGuy/>
-          </>
-        )}
-      </Center>
-      <Parallax/>
-    </>
+        </>
+      ) : (
+        <Heading>Connect your wallet!</Heading>
+      )}
+    </Center>
   )
 }

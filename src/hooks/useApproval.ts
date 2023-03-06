@@ -1,49 +1,71 @@
 import ERC20ABI from '@/../contracts/ERC20.json'
 import { useTokenAllowance } from '@/hooks/useTokenAllowance'
 import { Currency } from '@/models/currency'
-import { ethers } from 'ethers'
-import { useCallback, useMemo } from 'react'
-import { useAccount, useChainId, useContract, useContractRead } from 'wagmi'
+import { MaxUint256 } from '@ethersproject/constants'
+import { BigNumber } from 'ethers'
+import { useMemo } from 'react'
+import {
+  Address,
+  useAccount,
+  useChainId,
+  useContractWrite,
+  usePrepareContractWrite,
+  useWaitForTransaction,
+} from 'wagmi'
 
 export function useApproval(
   currencyToApprove: Currency,
   amountToApprove: string,
-  spender: string | undefined
+  spender: string | undefined,
+  onSuccess?: () => void
 ) {
-  const approvalState = useApprovalStateForSpender(
-    currencyToApprove,
-    amountToApprove,
-    spender
-  )
+  const { config: approveConfig } = usePrepareContractWrite({
+    chainId: useChainId(),
+    abi: ERC20ABI,
+    address: currencyToApprove.address as Address,
+    functionName: 'approve',
+    args: [currencyToApprove.address, MaxUint256],
+    overrides: {
+      from: spender as Address,
+    },
+  })
 
-  const approvalCallback = useCallback(async () => {
-    //
-  }, [approvalState, currencyToApprove, amountToApprove, spender])
+  const { data: approveData, write: approveAsset } =
+    useContractWrite(approveConfig)
 
-  return [approvalState, approvalCallback]
+  const { isLoading: isApprovalLoading } = useWaitForTransaction({
+    hash: approveData?.hash,
+    onSuccess: () => {
+      onSuccess && onSuccess()
+    },
+  })
+
+  return {
+    approveAsset,
+    isApprovalLoading,
+    hash: approveData?.hash,
+  }
 }
 
 export function useApprovalStateForSpender(
   currencyToApprove: Currency,
-  amountToApprove: string,
+  amountToApprove: BigNumber,
   spender: string | undefined
 ) {
   const { address } = useAccount()
 
-  const { tokenAllowance } = useTokenAllowance(
+  const { tokenAllowance: currentApprovedAllowance } = useTokenAllowance(
     currencyToApprove,
     address,
     spender
   )
 
   return useMemo(() => {
-    if (!amountToApprove || !spender || !tokenAllowance) return 'UNKNOWN'
+    if (!amountToApprove || !spender || !currentApprovedAllowance)
+      return 'UNKNOWN'
 
-    return ethers.utils.formatUnits(
-      tokenAllowance,
-      currencyToApprove.decimals
-    ) < amountToApprove
+    return currentApprovedAllowance.lt(amountToApprove)
       ? 'NOT_APPROVED'
       : 'APPROVED'
-  }, [amountToApprove, currencyToApprove, spender, tokenAllowance])
+  }, [amountToApprove, currencyToApprove, spender, currentApprovedAllowance])
 }
