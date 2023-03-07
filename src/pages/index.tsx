@@ -67,7 +67,7 @@ export default function Page() {
   } = useApproval(selectedCurrency, assetValue, address, () =>
     showToast(
       'Success',
-      `Asset approved successfully! https://goerli.etherscan.io/tx/${setKnoteHash}`
+      `Asset approved successfully! https://goerli.etherscan.io/tx/${approvalHash}`
     )
   )
 
@@ -84,7 +84,7 @@ export default function Page() {
     () =>
       showToast(
         'Success',
-        `KNOTE minted successfully! https://goerli.etherscan.io/tx/${approvalHash}`
+        `KNOTE minted successfully! https://goerli.etherscan.io/tx/${setKnoteHash}`
       )
   )
 
