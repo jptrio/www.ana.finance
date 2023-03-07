@@ -1,6 +1,7 @@
 import { CurrencySelector } from '@/components/web3/CurrencySelector'
 import { CurrencyInput } from '@/components/web3/CurrenyInput'
 import DeveloperPanel from '@/components/web3/DeveloperPanel'
+import UserAgreementModal from '@/components/web3/UserAgreementModal'
 import { AVAILABLE_TOKENS } from '@/config/constants'
 import { useApproval } from '@/hooks/useApproval'
 import { useSetKnote } from '@/hooks/useSetKnote'
@@ -22,11 +23,13 @@ import { useEffect, useState } from 'react'
 import { Address, useAccount, useBalance, useChainId } from 'wagmi'
 
 import PhuqingGuy from '../components/ui/PhuqingGuy'
+import { useDatabase } from "reactfire";
 
 export default function Page() {
   const { address, isConnected } = useAccount()
 
   const [isDevPanelOpen, setIsDevPanelOpen] = useState(false)
+  const [isAgreementModalOpen, setIsAgreementModalOpen] = useState(false)
 
   const [assetValue, setAssetValue] = useState('')
   const [hasMounted, setHasMounted] = useState(false)
@@ -35,6 +38,8 @@ export default function Page() {
   const [isAssetApproved, setIsAssetApproved] = useState(false)
 
   const toast = useToast()
+
+  const db = useDatabase();
 
   const { data: balanceData } = useBalance({
     chainId: useChainId(),
@@ -117,6 +122,7 @@ export default function Page() {
 
   useEffect(() => {
     setHasMounted(true)
+
   }, [])
 
   useEffect(() => {
@@ -154,6 +160,7 @@ export default function Page() {
       )}
       {isConnected ? (
         <>
+          <UserAgreementModal isOpen={isAgreementModalOpen} />
           <DeveloperPanel
             isOpen={isDevPanelOpen}
             onClose={() => setIsDevPanelOpen(false)}

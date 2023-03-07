@@ -5,6 +5,10 @@ import {
   RainbowKitProvider,
   connectorsForWallets,
 } from '@rainbow-me/rainbowkit'
+import {
+  GetSiweMessageOptions,
+  RainbowKitSiweNextAuthProvider,
+} from '@rainbow-me/rainbowkit-siwe-next-auth'
 import '@rainbow-me/rainbowkit/styles.css'
 import {
   metaMaskWallet,
@@ -23,7 +27,7 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
 
   const connectors = connectorsForWallets([
     {
-      groupName: 'Recommended',
+      groupName: 'Popular',
       wallets: [metaMaskWallet({ chains }), walletConnectWallet({ chains })],
     },
   ])
@@ -34,18 +38,26 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
     provider,
   })
 
+  const getSiweMessageOptions: GetSiweMessageOptions = () => ({
+    statement: 'Sign in to Trees N Clouds',
+  })
+
   return (
     <WagmiConfig client={wagmiClient}>
-      <RainbowKitProvider
-        modalSize='compact'
-        chains={chains}
-        theme={customRainbowTheme}
-        appInfo={{
-          appName: 'Trees N Clouds LLC',
-        }}
+      <RainbowKitSiweNextAuthProvider
+        getSiweMessageOptions={getSiweMessageOptions}
       >
-        {children}
-      </RainbowKitProvider>
+        <RainbowKitProvider
+          modalSize='compact'
+          chains={chains}
+          theme={customRainbowTheme}
+          appInfo={{
+            appName: 'Trees N Clouds LLC',
+          }}
+        >
+          {children}
+        </RainbowKitProvider>
+      </RainbowKitSiweNextAuthProvider>
     </WagmiConfig>
   )
 }
