@@ -9,7 +9,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <>
       <Parallax />
-      <Box bgGradient='radial( yellow.500, green.1900)'>
+      <Box bgGradient='radial(yellow.500, green.1900)'>
         <Box pos='relative' minHeight='100vh'>
           <main>{children}</main>
         </Box>
