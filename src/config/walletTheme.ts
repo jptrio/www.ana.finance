@@ -1,9 +1,4 @@
-import {
-  RainbowKitProvider,
-  Theme,
-  darkTheme,
-  lightTheme,
-} from '@rainbow-me/rainbowkit'
+import { Theme, lightTheme } from '@rainbow-me/rainbowkit'
 import { merge } from 'lodash'
 
 const customRainbowTheme: Theme = merge(lightTheme({ overlayBlur: 'small' }), {
