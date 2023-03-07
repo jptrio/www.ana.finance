@@ -141,16 +141,18 @@ export default function Page() {
   return (
     <Center height='100vh' width='100vw'>
       {/* TODO: If not mainnet then show dev panel and show TokenA & TokenB */}
-      <Button
-        right='4'
-        bottom='4'
-        position='absolute'
-        colorScheme='blackAlpha'
-        zIndex='10'
-        onClick={() => setIsDevPanelOpen(true)}
-      >
-        Dev Panel
-      </Button>
+      {isConnected && (
+        <Button
+          right='4'
+          bottom='4'
+          position='absolute'
+          colorScheme='blackAlpha'
+          zIndex='10'
+          onClick={() => setIsDevPanelOpen(true)}
+        >
+          Dev Panel
+        </Button>
+      )}
       {isConnected ? (
         <>
           <DeveloperPanel
