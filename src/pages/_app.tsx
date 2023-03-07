@@ -1,17 +1,22 @@
 import Layout from '@/components/layout'
+import RootProvider from '@/components/providers/RootProvider'
+import { Session } from 'next-auth'
+import { SessionProvider } from 'next-auth/react'
 import { AppProps } from 'next/app'
-import { AppComponent } from 'next/dist/shared/lib/router/router'
 
 export default function App({
   Component,
   pageProps,
-}: {
-  Component: AppComponent
-  pageProps: AppProps
-}) {
+}: AppProps<{
+  session: Session
+}>) {
   return (
-    <Layout>
-      <Component {...pageProps} />
-    </Layout>
+    <SessionProvider session={pageProps.session} refetchInterval={0}>
+      <RootProvider>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </RootProvider>
+    </SessionProvider>
   )
 }
