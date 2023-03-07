@@ -1,5 +1,3 @@
-import ChakraNextImage from '@/components/ui/ChakraNextImage'
-import { Flex, Image } from '@chakra-ui/react'
 import NextImage from 'next/image'
 
 export default function parallax() {
