@@ -72,7 +72,6 @@ export default function parallax() {
         style={{
           objectFit: 'contain',
           objectPosition: 'center bottom',
-          top: '5%',
           zIndex: 5,
         }}
       />

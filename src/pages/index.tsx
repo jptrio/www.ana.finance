@@ -204,10 +204,10 @@ export default function Page() {
                   colorScheme='orange'
                   onClick={handleSetKnote}
                   isLoading={isSetKnoteLoading}
-                  loadingText='Sending Transaction...'
+                  loadingText='Minting KNOTE...'
                   isDisabled={assetValue == '' || isSetKnoteLoading}
                 >
-                  {assetValue == '' ? 'Enter an amount' : 'Set KNOTE'}
+                  {assetValue == '' ? 'Enter an amount' : 'Mint KNOTE'}
                 </Button>
               )}
             </CardFooter>
