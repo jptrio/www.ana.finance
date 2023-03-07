@@ -178,6 +178,7 @@ export default function Page() {
                   onUserInput={handleAssetAmountInput}
                   currency={selectedCurrency}
                   balance={balanceData}
+                  isDisabled={isApprovalLoading || isSetKnoteLoading}
                 />
               </Box>
             </CardBody>

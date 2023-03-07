@@ -1,13 +1,11 @@
 import { Currency } from '@/models/currency'
 import {
   Badge,
-  Flex,
   Image,
   Input,
   InputGroup,
   InputRightElement,
-  Text,
-} from '@chakra-ui/react'
+} from "@chakra-ui/react";
 import { FetchBalanceResult } from '@wagmi/core'
 import { ChangeEvent } from 'react'
 
