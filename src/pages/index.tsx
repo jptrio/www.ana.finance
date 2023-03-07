@@ -160,7 +160,7 @@ export default function Page() {
       )}
       {isConnected ? (
         <>
-          <UserAgreementModal isOpen={isAgreementModalOpen} />
+          <UserAgreementModal />
           <DeveloperPanel
             isOpen={isDevPanelOpen}
             onClose={() => setIsDevPanelOpen(false)}
