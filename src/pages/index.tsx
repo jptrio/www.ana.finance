@@ -157,7 +157,7 @@ export default function Page() {
             isOpen={isDevPanelOpen}
             onClose={() => setIsDevPanelOpen(false)}
           />
-          <Card width='100%' maxWidth='xl' zIndex='10'>
+          <Card width='100%' maxWidth='xl' zIndex='10' bgColor="yellow.50">
             <CardBody>
               <Box>
                 <Text marginBottom='1' fontWeight='light'>
