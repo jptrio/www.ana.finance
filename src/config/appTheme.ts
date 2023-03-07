@@ -5,7 +5,7 @@ const config: ThemeConfig = {
   useSystemColorMode: false,
 }
 
-const theme = extendTheme({
+const appTheme = extendTheme({
   config,
   colors: {
     green: {
@@ -41,4 +41,4 @@ const theme = extendTheme({
   },
 })
 
-export default theme
+export default appTheme

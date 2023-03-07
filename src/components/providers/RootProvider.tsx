@@ -1,5 +1,5 @@
 import Web3Provider from '@/components/providers/Web3Provider'
-import theme from '@/config/theme'
+import appTheme from '@/config/appTheme'
 import { ChakraProvider } from '@chakra-ui/react'
 // import { SessionProvider } from 'next-auth/react'
 import { ReactNode } from 'react'
@@ -9,7 +9,7 @@ export default function RootProvider({ children }: { children: ReactNode }) {
   return (
     <SWRConfig>
       {/*<SessionProvider>*/}
-        <ChakraProvider theme={theme}>
+        <ChakraProvider theme={appTheme}>
           <Web3Provider>{children}</Web3Provider>
         </ChakraProvider>
       {/*</SessionProvider>*/}

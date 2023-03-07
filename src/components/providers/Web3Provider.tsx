@@ -2,7 +2,6 @@ import { ETH_CHAINS } from '@/config/constants'
 import {
   RainbowKitProvider,
   connectorsForWallets,
-  darkTheme,
 } from '@rainbow-me/rainbowkit'
 import '@rainbow-me/rainbowkit/styles.css'
 import {
@@ -13,6 +12,7 @@ import { getDefaultProvider } from 'ethers'
 import { ReactNode } from 'react'
 import { WagmiConfig, configureChains, createClient } from 'wagmi'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
+import customRainbowTheme from "@/config/walletTheme";
 
 export default function Web3Provider({ children }: { children: ReactNode }) {
   const { chains, provider } = configureChains(ETH_CHAINS, [
@@ -39,9 +39,9 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
   return (
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider
-        modalSize='compact'
+        modalSize='wide'
         chains={chains}
-        theme={darkTheme()}
+        theme={customRainbowTheme}
       >
         {children}
       </RainbowKitProvider>
