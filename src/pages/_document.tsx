@@ -11,7 +11,6 @@ export default function Document() {
         <ColorModeScript initialColorMode={theme.config.initialColorMode} />
         <Main />
         <NextScript />
-        <Parallax />
       </body>
     </Html>
   )

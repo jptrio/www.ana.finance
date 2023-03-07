@@ -1,4 +1,4 @@
-import RootProvider from '@/components/providers/RootProvider'
+import Parallax from '@/components/ui/Parallax'
 import NetworkStatus from '@/components/web3/NetworkStatus'
 import { WalletConnect } from '@/components/web3/WalletConnect'
 import { Box } from '@chakra-ui/react'
@@ -7,7 +7,8 @@ import { ReactNode } from 'react'
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <RootProvider>
+    <>
+      <Parallax />
       <Box bgGradient='radial( yellow.500, green.1900)'>
         <Box pos='relative' minHeight='100vh'>
           <main>{children}</main>
@@ -22,6 +23,6 @@ export default function Layout({ children }: { children: ReactNode }) {
           <NetworkStatus />
         </Box>
       </Box>
-    </RootProvider>
+    </>
   )
 }

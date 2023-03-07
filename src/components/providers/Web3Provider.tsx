@@ -9,20 +9,21 @@ import {
   metaMaskWallet,
   walletConnectWallet,
 } from '@rainbow-me/rainbowkit/wallets'
+import { getDefaultProvider } from 'ethers'
 import { ReactNode } from 'react'
 import { WagmiConfig, configureChains, createClient } from 'wagmi'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
 
-export default function RainbowKit({ children }: { children: ReactNode }) {
+export default function Web3Provider({ children }: { children: ReactNode }) {
   const { chains, provider } = configureChains(ETH_CHAINS, [
     alchemyProvider({
-      apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY as string,
+      apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY!,
     }),
   ])
 
   const connectors = connectorsForWallets([
     {
-      groupName: 'Recommended Wallets',
+      groupName: 'Recommended',
       wallets: [metaMaskWallet({ chains }), walletConnectWallet({ chains })],
     },
   ])
@@ -30,7 +31,9 @@ export default function RainbowKit({ children }: { children: ReactNode }) {
   const wagmiClient = createClient({
     autoConnect: true,
     connectors,
-    provider,
+    provider: getDefaultProvider('goerli', {
+      alchemy: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
+    }),
   })
 
   return (

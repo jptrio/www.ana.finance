@@ -190,12 +190,11 @@ export default function Page() {
                   width='100%'
                   colorScheme='orange'
                   onClick={handleAssetApproval}
+                  loadingText='Sending Transaction...'
                   isLoading={isApprovalLoading}
                   isDisabled={isApprovalLoading}
                 >
-                  {isApprovalLoading
-                    ? 'Sending Transaction...'
-                    : `Approve ${selectedCurrency.symbol}`}
+                  Approve {selectedCurrency.symbol}
                 </Button>
               ) : (
                 <Button
@@ -205,13 +204,10 @@ export default function Page() {
                   colorScheme='orange'
                   onClick={handleSetKnote}
                   isLoading={isSetKnoteLoading}
+                  loadingText='Sending Transaction...'
                   isDisabled={assetValue == '' || isSetKnoteLoading}
                 >
-                  {isSetKnoteLoading
-                    ? 'Sending Transaction...'
-                    : assetValue == ''
-                    ? 'Enter an amount'
-                    : 'Set KNOTE'}
+                  {assetValue == '' ? 'Enter an amount' : 'Set KNOTE'}
                 </Button>
               )}
             </CardFooter>
