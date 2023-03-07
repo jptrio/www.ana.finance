@@ -1,4 +1,6 @@
 import { ETH_CHAINS } from '@/config/constants'
+import customRainbowTheme from '@/config/walletTheme'
+import { Text } from '@chakra-ui/react'
 import {
   RainbowKitProvider,
   connectorsForWallets,
@@ -8,11 +10,9 @@ import {
   metaMaskWallet,
   walletConnectWallet,
 } from '@rainbow-me/rainbowkit/wallets'
-import { getDefaultProvider } from 'ethers'
 import { ReactNode } from 'react'
 import { WagmiConfig, configureChains, createClient } from 'wagmi'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
-import customRainbowTheme from "@/config/walletTheme";
 
 export default function Web3Provider({ children }: { children: ReactNode }) {
   const { chains, provider } = configureChains(ETH_CHAINS, [
@@ -31,17 +31,18 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
   const wagmiClient = createClient({
     autoConnect: true,
     connectors,
-    provider: getDefaultProvider('goerli', {
-      alchemy: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
-    }),
+    provider,
   })
 
   return (
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider
-        modalSize='wide'
+        modalSize='compact'
         chains={chains}
         theme={customRainbowTheme}
+        appInfo={{
+          appName: 'Trees N Clouds LLC',
+        }}
       >
         {children}
       </RainbowKitProvider>

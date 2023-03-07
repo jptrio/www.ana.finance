@@ -26,7 +26,6 @@ import PhuqingGuy from '../components/ui/PhuqingGuy'
 export default function Page() {
   const { address, isConnected } = useAccount()
 
-  const devModeEnabled = process.env.NEXT_PUBLIC_DEV_MODE
   const [isDevPanelOpen, setIsDevPanelOpen] = useState(false)
 
   const [assetValue, setAssetValue] = useState('')
@@ -159,7 +158,7 @@ export default function Page() {
             isOpen={isDevPanelOpen}
             onClose={() => setIsDevPanelOpen(false)}
           />
-          <Card width='100%' maxWidth='xl' zIndex='10' bgColor="yellow.50">
+          <Card width='100%' maxWidth='xl' zIndex='10' bgColor='yellow.50'>
             <CardBody>
               <Box>
                 <Text marginBottom='1' fontWeight='light'>
