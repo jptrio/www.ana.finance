@@ -2,7 +2,7 @@ import FirebaseProvider from '@/components/providers/FirebaseProvider'
 import Web3Provider from '@/components/providers/Web3Provider'
 import appTheme from '@/config/appTheme'
 import { ChakraProvider } from '@chakra-ui/react'
-import { SessionProvider } from 'next-auth/react'
+// import { SessionProvider } from 'next-auth/react'
 import { ReactNode } from 'react'
 import { SWRConfig } from 'swr'
 

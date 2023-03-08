@@ -21,8 +21,8 @@ import { useAccount } from 'wagmi'
 export default function UserAgreementModal() {
   const { address } = useAccount()
 
-  const [isUaAcceptedLocal, setIsUaAcceptedLocal] = useState(false)
-  const [isUaAcceptedDB, setIsUaAcceptedDB] = useState(false)
+  const [isUaAcceptedLocal, setIsUaAcceptedLocal] = useState(true)
+  const [isUaAcceptedDB, setIsUaAcceptedDB] = useState(true)
 
   const db = useDatabase()
   const accountsRef = ref(db, `accounts/${address}`)
@@ -53,7 +53,7 @@ export default function UserAgreementModal() {
   return (
     <Modal
       size='xl'
-      isOpen={!isUaAcceptedDB}
+      isOpen={!isUaAcceptedDB || false}
       isCentered={true}
       closeOnOverlayClick={false}
       onClose={() => alert('closed')}
