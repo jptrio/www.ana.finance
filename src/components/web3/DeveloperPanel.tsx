@@ -1,5 +1,5 @@
 import erc20 from '@/../contracts/ERC20_A.json'
-import { TOKEN_A_CONTRACT, TOKEN_B_CONTRACT } from '@/config/constants'
+import { TOKEN_A_CONTRACT, TOKEN_B_CONTRACT, TOKEN_MORTGAGE_CONTRACT } from '@/config/constants'
 import {
   Modal,
   ModalBody,
@@ -57,10 +57,12 @@ export default function DeveloperPanel({
   })
 
   useEffect(() => {
-    if (selectedFaucetToken == 'tokenA')
+    if (selectedFaucetToken == 'TUSDC')
       setSelectedFaucetAddress(TOKEN_A_CONTRACT)
-    if (selectedFaucetToken == 'tokenB')
+    if (selectedFaucetToken == 'TUSDT')
       setSelectedFaucetAddress(TOKEN_B_CONTRACT)
+    if (selectedFaucetToken == 'MTGT')
+      setSelectedFaucetAddress(TOKEN_MORTGAGE_CONTRACT)
   }, [selectedFaucetToken])
 
   const { data, writeAsync: mintFromFaucet } = useContractWrite(config)
@@ -108,14 +110,15 @@ export default function DeveloperPanel({
                   onChange={handleFaucetTokenChange}
                   placeholder='Select an asset'
                 >
-                  <option value='tokenA'>Token A</option>
-                  <option value='tokenB'>Token B</option>
+                  <option value='TUSDC'>TUSDC</option>
+                  <option value='TUSDT'>TUSDT</option>
+                  <option value='MTGT'>MTGT</option>
                 </Select>
               </GridItem>
               <GridItem>
                 <Button
                   variant='outline'
-                  colorScheme='orange'
+                  colorScheme='blackAlpha'
                   isDisabled={isLoading}
                   onClick={handleTokenMint}
                 >

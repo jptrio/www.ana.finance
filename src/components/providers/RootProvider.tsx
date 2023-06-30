@@ -10,11 +10,9 @@ export default function RootProvider({ children }: { children: ReactNode }) {
   return (
     <SWRConfig>
       {/*<SessionProvider refetchInterval={0}>*/}
-        <FirebaseProvider>
-          <ChakraProvider theme={appTheme}>
-            <Web3Provider>{children}</Web3Provider>
-          </ChakraProvider>
-        </FirebaseProvider>
+      <ChakraProvider theme={appTheme}>
+        <Web3Provider>{children}</Web3Provider>
+      </ChakraProvider>
       {/*</SessionProvider>*/}
     </SWRConfig>
   )

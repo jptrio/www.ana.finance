@@ -4,7 +4,7 @@ export default function parallax() {
   return (
     <>
       <NextImage
-        src='/parallax_bg.png'
+        src='/mt_bw.png'
         alt=''
         fill
         quality={50}
@@ -16,7 +16,7 @@ export default function parallax() {
         }}
       />
 
-      <NextImage
+     {/*  <NextImage
         src='/parallax_4.png'
         alt=''
         fill
@@ -74,7 +74,7 @@ export default function parallax() {
           objectPosition: 'center bottom',
           zIndex: 5,
         }}
-      />
+      /> */}
     </>
   )
 }

@@ -1,7 +1,7 @@
 import { CurrencySelector } from '@/components/web3/CurrencySelector'
 import { CurrencyInput } from '@/components/web3/CurrenyInput'
 import DeveloperPanel from '@/components/web3/DeveloperPanel'
-import UserAgreementModal from '@/components/web3/UserAgreementModal'
+// import UserAgreementModal from '@/components/web3/UserAgreementModal'
 import { AVAILABLE_TOKENS } from '@/config/constants'
 import { useApproval } from '@/hooks/useApproval'
 import { useSetKnote } from '@/hooks/useSetKnote'
@@ -23,13 +23,12 @@ import { useEffect, useState } from 'react'
 import { Address, useAccount, useBalance, useChainId } from 'wagmi'
 
 import PhuqingGuy from '../components/ui/PhuqingGuy'
-import { useDatabase } from "reactfire";
+// import { useDatabase } from "reactfire";
 
 export default function Page() {
   const { address, isConnected } = useAccount()
 
   const [isDevPanelOpen, setIsDevPanelOpen] = useState(false)
-  const [isAgreementModalOpen, setIsAgreementModalOpen] = useState(false)
 
   const [assetValue, setAssetValue] = useState('')
   const [hasMounted, setHasMounted] = useState(false)
@@ -39,7 +38,7 @@ export default function Page() {
 
   const toast = useToast()
 
-  const db = useDatabase();
+  // const db = useDatabase();
 
   const { data: balanceData } = useBalance({
     chainId: useChainId(),
@@ -76,7 +75,7 @@ export default function Page() {
   )
 
   const {
-    setKnote,
+    mintNote,
     isSetKnoteLoading,
     hash: setKnoteHash,
   } = useSetKnote(
@@ -88,7 +87,7 @@ export default function Page() {
     () =>
       showToast(
         'Success',
-        `KNOTE minted successfully! https://goerli.etherscan.io/tx/${setKnoteHash}`
+        `Note minted successfully! https://goerli.etherscan.io/tx/${setKnoteHash}`
       )
   )
 
@@ -103,9 +102,9 @@ export default function Page() {
   }
 
   const handleSetKnote = async () => {
-    if (setKnote) {
+    if (mintNote) {
       try {
-        await setKnote()
+        await mintNote()
       } catch (error) {
         console.error(error)
       }
@@ -160,7 +159,7 @@ export default function Page() {
       )}
       {isConnected ? (
         <>
-          <UserAgreementModal />
+          {/* <UserAgreementModal /> */}
           <DeveloperPanel
             isOpen={isDevPanelOpen}
             onClose={() => setIsDevPanelOpen(false)}
@@ -176,7 +175,6 @@ export default function Page() {
                   onTokenSelect={handleCurrencySelect}
                 />
               </Box>
-
               <Box paddingTop='8'>
                 <Text marginBottom='1' fontWeight='light'>
                   Deposit Amount
@@ -190,14 +188,13 @@ export default function Page() {
                 />
               </Box>
             </CardBody>
-
             <CardFooter>
               {!isAssetApproved ? (
                 <Button
                   size='lg'
                   shadow='md'
                   width='100%'
-                  colorScheme='orange'
+                  colorScheme='blackAlpha'
                   onClick={handleAssetApproval}
                   loadingText='Sending Transaction...'
                   isLoading={isApprovalLoading}
@@ -210,13 +207,13 @@ export default function Page() {
                   size='lg'
                   shadow='md'
                   width='100%'
-                  colorScheme='orange'
+                  colorScheme='blue'
                   onClick={handleSetKnote}
                   isLoading={isSetKnoteLoading}
-                  loadingText='Minting KNOTE...'
+                  loadingText='Minting Note...'
                   isDisabled={assetValue == '' || isSetKnoteLoading}
                 >
-                  {assetValue == '' ? 'Enter an amount' : 'Mint KNOTE'}
+                  {assetValue == '' ? 'Enter an amount' : 'Mint Note'}
                 </Button>
               )}
             </CardFooter>
@@ -224,14 +221,14 @@ export default function Page() {
         </>
       ) : (
         <>
-          <PhuqingGuy />
+          {/* <PhuqingGuy /> */}
           <Flex direction='column' alignItems='center' zIndex='9'>
-            <Image
+            {/* <Image
               src='heart.png'
               alt='We Love Yields'
               zIndex='9'
               width='50%'
-            />
+            /> */}
             <Heading>Connect your wallet!</Heading>
           </Flex>
         </>

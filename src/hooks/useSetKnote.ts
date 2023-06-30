@@ -1,5 +1,7 @@
 import { KNOTES_CONTRACT } from '@/config/constants'
 import { Currency } from '@/models/currency'
+import { BigNumber, ethers } from 'ethers'
+import { useCallback } from 'react'
 import {
   Address,
   useChainId,
@@ -8,7 +10,7 @@ import {
   useWaitForTransaction,
 } from 'wagmi'
 
-import KNOTEABI from '../../contracts/KNOTES.json'
+import NOTEABI from '../../contracts/NoteV1.json'
 
 export function useSetKnote(
   currencyA: Currency,
@@ -16,37 +18,62 @@ export function useSetKnote(
   currencyB: Currency,
   currencyBAmount: string,
   sender: string | undefined,
-  onSuccess?: () => void
+  onSuccess?: (trxHash: string) => void,
+  onError?: (error: Error) => void
 ) {
-  const { config: addLiquidityConfig } = usePrepareContractWrite({
-    chainId: useChainId(),
-    address: KNOTES_CONTRACT,
-    abi: KNOTEABI.abi,
-    functionName: 'setKNOTE',
-    args: [
-      currencyA.address,
-      currencyAAmount,
-      currencyB.address,
-      currencyBAmount,
-    ],
-    overrides: {
-      from: sender as Address,
+  const onSuccessCallback = useCallback(
+    (receipt: ethers.providers.TransactionReceipt) => {
+      onSuccess && onSuccess(receipt.transactionHash)
     },
-  })
+    [onSuccess]
+  )
 
-  const { data: setKnoteData, write: setKnote } =
+  const onErrorCallback = useCallback(
+    (error: Error) => {
+      onError && onError(error)
+    },
+    [onError]
+  )
+  currencyAAmount = currencyAAmount == '' ? '0':currencyAAmount;
+
+  const { config: addLiquidityConfig, error: prepareError } =
+  usePrepareContractWrite({
+      enabled: true,
+      chainId: useChainId(),
+      address: '0x73aE88Cb9623925dd72E7384e7b532d00EC5Ac6D',
+      abi: NOTEABI.abi,
+      functionName: 'mintNote',
+      args: [{
+        creator: '0x080c1Aee7b67C8345B2413fa38f70376E616Bd06',
+        timestamp: 1688008202082,
+        expiration: 1688908202082,
+        term: 2,
+        aTokenAddress: currencyA,
+        aTokenBalance: ethers.BigNumber.from(currencyAAmount), // Convert string to BigNumber
+        bTokenAddress: currencyB,
+        swappedTokensBalance: 0,
+        noteType: 'noteV1',
+      }],
+      overrides: {
+        from: sender as Address,
+      },
+    })
+
+    console.log('ERROR: ', prepareError)
+
+  const { data: setKnoteData, write: mintNote } =
     useContractWrite(addLiquidityConfig)
 
   const { isLoading: isSetKnoteLoading } = useWaitForTransaction({
     hash: setKnoteData?.hash,
-    onSuccess: () => {
-      onSuccess && onSuccess()
-    },
+    onSuccess: onSuccessCallback,
+    onError: onErrorCallback,
   })
 
   return {
-    setKnote,
+    mintNote,
     isSetKnoteLoading,
     hash: setKnoteData?.hash,
+    prepareError,
   }
 }
