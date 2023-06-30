@@ -49,7 +49,7 @@ export function useSetKnote(
         expiration: 1688908202082,
         term: 2,
         aTokenAddress: currencyA,
-        aTokenBalance: ethers.BigNumber.from(currencyAAmount), // Convert string to BigNumber
+        aTokenBalance: currencyAAmount, // Convert string to BigNumber
         bTokenAddress: currencyB,
         swappedTokensBalance: 0,
         noteType: 'noteV1',
@@ -58,8 +58,6 @@ export function useSetKnote(
         from: sender as Address,
       },
     })
-
-    console.log('ERROR: ', prepareError)
 
   const { data: setKnoteData, write: mintNote } =
     useContractWrite(addLiquidityConfig)

@@ -30,7 +30,7 @@ export default function Page() {
 
   const [isDevPanelOpen, setIsDevPanelOpen] = useState(false)
 
-  const [assetValue, setAssetValue] = useState('')
+  const [assetValue, setAssetValue] = useState()
   const [hasMounted, setHasMounted] = useState(false)
   const [selectedCurrency, setCurrency] = useState(AVAILABLE_TOKENS[0])
   const [formattedAssetValue, setFormattedAssetValue] = useState<BigNumber>()
@@ -67,7 +67,7 @@ export default function Page() {
     approveAsset,
     isApprovalLoading,
     hash: approvalHash,
-  } = useApproval(selectedCurrency, assetValue, address, () =>
+  } = useApproval(selectedCurrency, assetValue??'0', address, () =>
     showToast(
       'Success',
       `Asset approved successfully! https://goerli.etherscan.io/tx/${approvalHash}`
@@ -80,9 +80,9 @@ export default function Page() {
     hash: setKnoteHash,
   } = useSetKnote(
     selectedCurrency,
-    assetValue,
+    assetValue ?? '0',
     selectedCurrency,
-    assetValue,
+    assetValue ?? '0',
     address,
     () =>
       showToast(
